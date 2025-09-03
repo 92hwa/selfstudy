@@ -1,0 +1,16 @@
+cs/*/bin
+cs/*/obj/*
+cs/*/*.csproj
+
+cpp/*/.vs
+cpp/*/x64
+cpp/*/*.sln
+
+cpp/*/*/x64
+cpp/*/*.vcxproj
+cpp/*/*.filters
+cpp/*/*.user
+cpp/*/*.dll
+
+cpp/*/*/*.sln
+cpp/*/*/*
