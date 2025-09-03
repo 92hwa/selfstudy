@@ -9,11 +9,11 @@ int main() {
 	if (src.empty()) { cout << "영상을 읽을 수 없음" << endl; }
 	imshow("src", src);
 
-	Mat gray, edge, output;
-	cvtColor(src, gray, COLOR_BGR2GRAY);
+	Mat dst, output;
+	flip(src, output, 1);
 
-	imshow("gray", gray);
-	imwrite("D:\\workspace\\selfstudy\\cpp\\Project2\\gray.jpg", gray);
+	imshow("flip", output);
+	imwrite("D:\\workspace\\selfstudy\\cpp\\Project3\\flip.png", output);
 
 	waitKey(0);
 	return 0;
