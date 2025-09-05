@@ -66,5 +66,10 @@ namespace WindowsFormsApp1
             Cv2.WaitKey(0);
             Cv2.DestroyAllWindows();
         }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            
+        }
     }
 }
