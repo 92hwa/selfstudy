@@ -1,0 +1,28 @@
+﻿<Window x:Class="rawEx01.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:rawEx01"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="505.711" Width="573.839">
+    <Grid Margin="0,10,0,0">
+        <Button Name="btnLoad" Content="Load" HorizontalAlignment="Left" Margin="440,21,0,0" VerticalAlignment="Top" Width="113" Height="35" Click="btnLoad_Click"/>
+        <Button Name="btnHistogram"  Content="Histogram" HorizontalAlignment="Left" Margin="440,70,0,0" VerticalAlignment="Top" Width="113" Height="35"/>
+        <Button Name="btnLUT"  Content="LUT" HorizontalAlignment="Left" Margin="440,118,0,0" VerticalAlignment="Top" Width="113" Height="35"/>
+        <Button Name="btnExit"  Content="Exit" HorizontalAlignment="Left" Margin="440,418,0,0" VerticalAlignment="Top" Width="113" Height="35" Click="btnExit_Click"/>
+        <GroupBox Header="Preview" HorizontalAlignment="Left" Height="445" Margin="13,11,0,0" VerticalAlignment="Top" Width="413" FontWeight="Bold" RenderTransformOrigin="0.5,0.5">
+
+            <Grid>
+                <Image Name="imgBox" HorizontalAlignment="Left" Height="322" Margin="10,10,0,0" VerticalAlignment="Top" Width="381"/>
+                <Label Name="lbl" HorizontalAlignment="Left" Margin="10,337,0,0" VerticalAlignment="Top"/>
+
+            </Grid>
+
+        </GroupBox>
+
+    </Grid>
+
+
+
+</Window>
