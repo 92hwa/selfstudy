@@ -1,7 +1,6 @@
 D:\workspace\selfstudy\rawEx01\rawEx01\obj\x64\Debug\MainWindow.g.cs
 D:\workspace\selfstudy\rawEx01\rawEx01\obj\x64\Debug\App.g.cs
 D:\workspace\selfstudy\rawEx01\rawEx01\obj\x64\Debug\rawEx01_MarkupCompile.cache
-D:\workspace\selfstudy\rawEx01\rawEx01\obj\x64\Debug\rawEx01_MarkupCompile.lref
 D:\workspace\selfstudy\rawEx01\rawEx01\bin\x64\Debug\rawEx01.exe.config
 D:\workspace\selfstudy\rawEx01\rawEx01\bin\x64\Debug\rawEx01.exe
 D:\workspace\selfstudy\rawEx01\rawEx01\bin\x64\Debug\rawEx01.pdb
@@ -12,3 +11,4 @@ D:\workspace\selfstudy\rawEx01\rawEx01\obj\x64\Debug\rawEx01.csproj.GenerateReso
 D:\workspace\selfstudy\rawEx01\rawEx01\obj\x64\Debug\rawEx01.csproj.CoreCompileInputs.cache
 D:\workspace\selfstudy\rawEx01\rawEx01\obj\x64\Debug\rawEx01.exe
 D:\workspace\selfstudy\rawEx01\rawEx01\obj\x64\Debug\rawEx01.pdb
+D:\workspace\selfstudy\rawEx01\rawEx01\obj\x64\Debug\rawEx01.csproj.AssemblyReference.cache
