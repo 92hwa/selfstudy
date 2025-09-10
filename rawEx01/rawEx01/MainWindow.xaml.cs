@@ -3,14 +3,14 @@ using System.IO;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Linq;
 using Microsoft.Win32;
+using OpenCvSharp;
 
 namespace rawEx01
 {
-    /// <summary>
-    /// MainWindow.xaml에 대한 상호 작용 논리
-    /// </summary>
-    public partial class MainWindow : Window
+
+    public partial class MainWindow : System.Windows.Window
     {
         string selectedFilePath;
         WriteableBitmap wb;
@@ -18,12 +18,12 @@ namespace rawEx01
         int width = 3072;
         int height = 3072;
 
-        ushort[] buffer16;
-        byte[] buffer8;
         int[] histogram;
         int sum;
         int avg;
 
+        ushort[] buffer16;
+        byte[] buffer8;
 
         public MainWindow()
         {
@@ -31,7 +31,6 @@ namespace rawEx01
             buffer16 = new ushort[(int)(width * height)];
             buffer8 = new byte[width * height];
         }
-
 
         private void btnLoad_Click(object sender, RoutedEventArgs e)
         {
@@ -68,8 +67,7 @@ namespace rawEx01
             }
         }
 
-
-        private void btnHistogram_Click(object sender, RoutedEventArgs e)
+        private void btnCalculateHistogram_Click(object sender, RoutedEventArgs e)
         {
             if (buffer8 == null)
             {
@@ -104,37 +102,53 @@ namespace rawEx01
             txtBox.Text += "\n\n";
         }
 
-
-        private void btnHistogramEqualization_Click(object sender, RoutedEventArgs e)
+        private void btnHistogramChart_Click(object sender, RoutedEventArgs e)
         {
-            txtBox.Text += "*** Histogram Equalization Output \n";
-            
-            for (int i = 0; i < 256; i++)
+            if (histogram == null)
             {
-                sum += histogram[i];
+                MessageBox.Show("먼저 히스토그램을 계산 해 주세요.");
+                return;
             }
-            avg = sum / 256;
+
+            // 차트 크기
+            int histW = 512;
+            int histH = 400;
+            int binW = histW / 256;
+
+            Mat histImage = new Mat(histH, histW, MatType.CV_8UC3, Scalar.All(255));
+
+            // 값을 0 ~ hist 범위로 변환
+            int maxVal = histogram.Max();
+            float[] normHist = new float[256];
 
             for (int i = 0; i < 256; i++)
             {
-                txtBox.Text += $"{histogram[i]/avg} \t";
+                normHist[i] = (float)histogram[i] / maxVal * histW;
             }
 
-            txtBox.Text += "\n\n";
+            for (int i = 1; i < 256; i++)
+            {
+                Cv2.Line(histImage,
+                    new OpenCvSharp.Point((i - 1) * binW, histH - (int)normHist[i - 1]),
+                    new OpenCvSharp.Point(i * binW, histH - (int)normHist[i]),
+                    Scalar.Black, 2, LineTypes.AntiAlias, 0);
+            }
+
+            Cv2.ImShow("Histogram", histImage);
+            Cv2.WaitKey(0);
+            Cv2.DestroyAllWindows();
         }
+
 
 
         private void btnLUT_Click(object sender, RoutedEventArgs e)
         {
-
+            MessageBox.Show("진행 중");
         }
-
-
 
         private void btnExit_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
         }
-
     }
 }
