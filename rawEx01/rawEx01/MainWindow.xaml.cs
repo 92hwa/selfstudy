@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -13,6 +14,8 @@ namespace rawEx01
     public partial class MainWindow : System.Windows.Window
     {
         string selectedFilePath;
+        string selectedFileName;
+        string selectedFileExt;
         WriteableBitmap wb;
         
         int width = 3072;
@@ -32,33 +35,76 @@ namespace rawEx01
         private void btnLoad_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "RAW Files|*.raw|All Files|*.*";
+            openFileDialog.Filter = "All Files|*.*|RAW Files|*.raw|DICOM Files|*.dcm";
             openFileDialog.Multiselect = false;
 
             if (openFileDialog.ShowDialog() == true)
             {
                 selectedFilePath = openFileDialog.FileName;
+                selectedFileName = Path.GetFileName(selectedFilePath);
+                selectedFileExt = Path.GetExtension(selectedFilePath);
 
                 FileStream fs = new FileStream(selectedFilePath, FileMode.Open, FileAccess.Read);
                 BinaryReader reader = new BinaryReader(fs);
 
-                for (int i = 0; i < width * height; i++)
+                if (selectedFileExt == ".dcm")
                 {
-                    ushort value = (ushort)reader.ReadUInt16();
-                    buffer16[i] = value;
+                    reader.BaseStream.Seek(128, SeekOrigin.Begin);
+                    string dicm = new string(reader.ReadChars(4));
+
+                    while (reader.BaseStream.Position < reader.BaseStream.Length)
+                    {
+                        ushort group = reader.ReadUInt16();
+                        ushort element = reader.ReadUInt16();
+                        string vr = Encoding.ASCII.GetString(reader.ReadBytes(2));
+                        ushort length = reader.ReadUInt16();
+
+                        byte[] valueBytes = reader.ReadBytes(length);
+
+
+                        // Rows
+                        if (group == 0x0028 && element == 0x0010)
+                        {
+                            int rows = BitConverter.ToUInt16(valueBytes, 0);
+                            txtBox.Text += "Rows (Height): " + rows + "\n";
+                        }
+
+
+                        // Columns
+                        else if (group == 0x0028 && element == 0x0011)
+                        {
+                            int cols = BitConverter.ToUInt16(valueBytes, 0);
+                            txtBox.Text += "Columns (Width): " + cols + "\n";
+                        }
+
+
+                        // Pixel Data
+                        else if (group == 0x7FE0 && element == 0x0010)
+                        {
+                            txtBox.Text += "Pixel Data Length: " + valueBytes.Length + "\n";
+                        }
+                    }
                 }
 
-                for (int j = 0; j < width * height; j++)
+                else if(selectedFileExt == ".raw")
                 {
-                    buffer8[j] = (byte)(buffer16[j] >> 8);
+                    for (int i = 0; i < width * height; i++)
+                    {
+                        ushort value = (ushort)reader.ReadUInt16();
+                        buffer16[i] = value;
+                    }
+
+                    for (int j = 0; j < width * height; j++)
+                    {
+                        buffer8[j] = (byte)(buffer16[j] >> 8);
+                    }
+
+                    wb = new WriteableBitmap(width, height, 96, 96, PixelFormats.Gray8, null);
+                    wb.WritePixels(new Int32Rect(0, 0, width, height), buffer8, width, 0);
+                    imgBox.Source = wb;
+
+                    txtBox.Text = $"선택한 파일: {selectedFilePath} \n\n";
                 }
-
-                wb = new WriteableBitmap(width, height, 96, 96, PixelFormats.Gray8, null);
-                wb.WritePixels(new Int32Rect(0, 0, width, height), buffer8, width, 0);
-                imgBox.Source = wb;
-
-                txtBox.Text = $"선택한 파일: {selectedFilePath} \n\n";
-
                 reader.Close();
                 fs.Close();
             }
@@ -68,7 +114,7 @@ namespace rawEx01
         {
             if (buffer8 == null)
             {
-                MessageBox.Show("먼저 RAW 파일을 불러와주세요.");
+                MessageBox.Show("먼저 파일을 불러와주세요.");
                 return;
             }
 
@@ -93,9 +139,8 @@ namespace rawEx01
 
             for (int i = 0; i < 256; i++)
             {
-                txtBox.Text += histogram[i] + "\t";
+                txtBox.Text += histogram[i];
             }
-
             txtBox.Text += "\n\n";
         }
 
@@ -189,7 +234,7 @@ namespace rawEx01
         {
             if (buffer8 == null || histogram == null)
             {
-                MessageBox.Show("먼저 RAW파일을 불러오고 히스토그램을 계산 해 주세요.");
+                MessageBox.Show("먼저 파일을 불러오고 히스토그램을 계산 해 주세요.");
                 return;
             }
 
@@ -225,8 +270,6 @@ namespace rawEx01
             child.SetImage(lutBitmap);
             child.Owner = this;
             child.Show();
-
-
         }
 
         private void btnExit_Click(object sender, RoutedEventArgs e)
