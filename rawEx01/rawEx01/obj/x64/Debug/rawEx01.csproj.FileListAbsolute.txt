@@ -33,3 +33,5 @@ D:\workspace\selfstudy\rawEx01\rawEx01\obj\x64\Debug\rawEx01.csproj.CopyComplete
 D:\workspace\selfstudy\rawEx01\rawEx01\obj\x64\Debug\ChildWindow.g.cs
 D:\workspace\selfstudy\rawEx01\rawEx01\obj\x64\Debug\rawEx01_MarkupCompile.lref
 D:\workspace\selfstudy\rawEx01\rawEx01\obj\x64\Debug\ChildWindow.baml
+D:\workspace\selfstudy\rawEx01\rawEx01\obj\x64\Debug\ChildWindow2.g.cs
+D:\workspace\selfstudy\rawEx01\rawEx01\obj\x64\Debug\ChildWindow2.baml

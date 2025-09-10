@@ -19,9 +19,6 @@ namespace rawEx01
         int height = 3072;
 
         int[] histogram;
-        int sum;
-        int avg;
-
         ushort[] buffer16;
         byte[] buffer8;
 
@@ -126,7 +123,7 @@ namespace rawEx01
             // 전체 배경을 흰색으로 초기화
             for (int i = 0; i < pixels.Length; i += 4)
             {
-                pixels[i] = 255;        // Blue
+                pixels[i] = 255;           // Blue
                 pixels[i + 1] = 255;    // Green
                 pixels[i + 2] = 255;    // Red
                 pixels[i + 3] = 255;    // Alpha
@@ -190,7 +187,46 @@ namespace rawEx01
 
         private void btnLUT_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("진행 중");
+            if (buffer8 == null || histogram == null)
+            {
+                MessageBox.Show("먼저 RAW파일을 불러오고 히스토그램을 계산 해 주세요.");
+                return;
+            }
+
+            // LUT 생성 (히스토그램 평활화)
+            int totalPixels = buffer8.Length;
+            int[] cumHist = new int[256];
+            cumHist[0] = histogram[0];
+
+            for(int i = 1; i < 256; i++)
+            {
+                cumHist[i] = cumHist[i - 1] + histogram[i];
+            }
+
+            byte[] LUT = new byte[256];
+            for (int i = 0; i < 256; i++)
+            {
+                LUT[i] = (byte)((cumHist[i] - cumHist[0]) * 255 / (totalPixels - 1));
+            }
+
+            // LUT 적용
+            byte[] lutBuffer = new byte[buffer8.Length];
+            for (int i = 0; i < buffer8.Length; i++)
+            {
+                lutBuffer[i] = LUT[buffer8[i]];
+            }
+
+            // 새로운 WriteableBitmap 생성
+            WriteableBitmap lutBitmap = new WriteableBitmap(width, height, 96, 96, PixelFormats.Gray8, null);
+            lutBitmap.WritePixels(new Int32Rect(0, 0, width, height), lutBuffer, width, 0);
+
+            // 이미지 컨트롤에 적용
+            ChildWindow child = new ChildWindow();
+            child.SetImage(lutBitmap);
+            child.Owner = this;
+            child.Show();
+
+
         }
 
         private void btnExit_Click(object sender, RoutedEventArgs e)
