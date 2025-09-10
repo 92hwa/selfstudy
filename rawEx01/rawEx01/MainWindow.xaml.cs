@@ -115,6 +115,52 @@ namespace rawEx01
             int histH = 400;
             int binW = histW / 256;
 
+            //최대값 찾기 (정규화용)
+            int maxVal = histogram.Max();
+
+            // 비트맵 생성
+            WriteableBitmap histBitmap = new WriteableBitmap(histW, histH, 96, 96, PixelFormats.Bgr32, null);
+            int stride = histW * 4;
+            byte[] pixels = new byte[histH * stride];
+            
+            // 전체 배경을 흰색으로 초기화
+            for (int i = 0; i < pixels.Length; i += 4)
+            {
+                pixels[i] = 255;        // Blue
+                pixels[i + 1] = 255;    // Green
+                pixels[i + 2] = 255;    // Red
+                pixels[i + 3] = 255;    // Alpha
+            }
+
+            // 히스토그램 막대 그리기 
+            for (int i = 0; i < 256; i++)
+            {
+                int barHeight = (int)((double)histogram[i] / maxVal * histH);
+
+                for (int y = histH - 1; y >= histH - barHeight; y--)
+                {
+                    for (int x = i * binW; x < (i + 1) * binW; x++)
+                    {
+                        int index = y * stride + x * 4;
+
+                        pixels[index] = 0;              // Blue
+                        pixels[index + 1] = 0;        // Green
+                        pixels[index + 2] = 0;        // Red
+                        pixels[index + 3] = 255;    // Alpha
+                    }
+                }
+            }
+
+            histBitmap.WritePixels(new Int32Rect(0, 0, histW, histH), pixels, stride, 0);
+
+            ChildWindow child = new ChildWindow();
+            child.SetImage(histBitmap);
+            child.Owner = this;
+            child.Show();
+
+
+            /*
+            // OpenCV 사용
             Mat histImage = new Mat(histH, histW, MatType.CV_8UC3, Scalar.All(255));
 
             // 값을 0 ~ hist 범위로 변환
@@ -137,6 +183,7 @@ namespace rawEx01
             Cv2.ImShow("Histogram", histImage);
             Cv2.WaitKey(0);
             Cv2.DestroyAllWindows();
+            */
         }
 
 

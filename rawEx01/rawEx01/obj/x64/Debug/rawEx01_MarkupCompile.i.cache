@@ -10,11 +10,11 @@ none
 false
 DEBUG;TRACE
 D:\workspace\selfstudy\rawEx01\rawEx01\App.xaml
-11151548125
+2-2083235166
 11365018425
-6-696006883
+7-20587346
 22713588493
-MainWindow.xaml;
+ChildWindow.xaml;MainWindow.xaml;
 
-False
+True
 

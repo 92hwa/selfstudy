@@ -30,3 +30,6 @@ D:\workspace\selfstudy\rawEx01\rawEx01\bin\x64\Debug\System.Numerics.Vectors.xml
 D:\workspace\selfstudy\rawEx01\rawEx01\bin\x64\Debug\System.Runtime.CompilerServices.Unsafe.xml
 D:\workspace\selfstudy\rawEx01\rawEx01\obj\x64\Debug\rawEx01_Content.g.cs
 D:\workspace\selfstudy\rawEx01\rawEx01\obj\x64\Debug\rawEx01.csproj.CopyComplete
+D:\workspace\selfstudy\rawEx01\rawEx01\obj\x64\Debug\ChildWindow.g.cs
+D:\workspace\selfstudy\rawEx01\rawEx01\obj\x64\Debug\rawEx01_MarkupCompile.lref
+D:\workspace\selfstudy\rawEx01\rawEx01\obj\x64\Debug\ChildWindow.baml
