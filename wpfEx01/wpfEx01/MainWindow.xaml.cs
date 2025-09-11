@@ -54,11 +54,6 @@ namespace wpfEx01
 
                     while (reader.BaseStream.Position < reader.BaseStream.Length) // DICM 이후 Tag 읽기
                     {
-                        /*string position = reader.BaseStream.Position.ToString();
-                        string length = reader.BaseStream.Length.ToString();*/
-
-                        long pos = reader.BaseStream.Position;
-
                         ushort group = reader.ReadUInt16(); // Tag Group
                         ushort element = reader.ReadUInt16(); // Tag Element
                         string vr = Encoding.ASCII.GetString(reader.ReadBytes(2)); // VR
@@ -80,24 +75,18 @@ namespace wpfEx01
                         if (group == 40 && element == 16)
                         {
                             height = BitConverter.ToUInt16(valueBytes, 0);
-                            //txtBox.Text += $"({group}, {element}) \n";
-                            //txtBox.Text += $"rows: {rows} \n";
                         }
 
                         // Columns
                         else if (group == 40 && element == 17)
                         {
                             width = BitConverter.ToUInt16(valueBytes, 0);
-                            //txtBox.Text += $"({group}, {element}) \n";
-                            //txtBox.Text += $"Columns (Width): {cols} \n";
                         }
 
                         // Pixel Data
                         else if (group == 32736 && element == 16)
                         {
                             pixelData = valueBytes;
-                            //txtBox.Text += $"({group}, {element}) \n";
-                            //txtBox.Text += "Pixel Data Length: " + valueBytes.Length + "\n";
                         }
 
                         else if (height > 0 && width > 0 && pixelData != null)
@@ -111,13 +100,10 @@ namespace wpfEx01
                     {
                         if (i * 2 + 1 < pixelData.Length)
                         {
-                            buffer8[i] = (byte)(pixelData[i * 2] | (pixelData[i * 2 + 1] << 8) >> 8);
+                            ushort value16 = (ushort)(pixelData[i * 2] | (pixelData[i * 2 + 1] << 8)); // 16비트 픽셀
+                            buffer8[i] = (byte)(value16 >> 8); // 상위 8비트만 저장
                         }
                     }
-
-                    wb = new WriteableBitmap(width, height, 96, 96, PixelFormats.Gray8, null);
-                    wb.WritePixels(new Int32Rect(0, 0, width, height), buffer8, width, 0);
-                    imgBox.Source = wb;
                 }
 
                 else if(selectedFileExt == ".raw")
@@ -138,11 +124,12 @@ namespace wpfEx01
                     {
                         buffer8[j] = (byte)(buffer16[j] >> 8);
                     }
-
-                    wb = new WriteableBitmap(width, height, 96, 96, PixelFormats.Gray8, null);
-                    wb.WritePixels(new Int32Rect(0, 0, width, height), buffer8, width, 0);
-                    imgBox.Source = wb;
                 }
+
+                wb = new WriteableBitmap(width, height, 96, 96, PixelFormats.Gray8, null); //  8비트 흑백 비트맵 메모리 공간 생성
+                wb.WritePixels(new Int32Rect(0, 0, width, height), buffer8, width, 0); // buffer8의 데이터를 비트맵에 그대로 복사해서 화면에 띄우기
+                imgBox.Source = wb;
+
                 reader.Close();
                 fs.Close();
             }
@@ -164,14 +151,10 @@ namespace wpfEx01
             byte[] pixels = new byte[width * height * 4];
             wb.CopyPixels(pixels, width * 4, 0);
 
-            for (int y = 0; y < height; y++)
+            for (int i = 0; i < pixels.Length; i++)
             {
-                for (int x = 0; x < width; x++)
-                {
-                    int index = (y * width + x) * 4;
-                    byte gray = (byte)((pixels[index] + pixels[index + 1] + pixels[index + 2]) / 3);
-                    histogram[gray]++;
-                }
+                byte gray = pixels[i];
+                histogram[gray]++;
             }
 
             txtBox.Text += "*** Histogram Output \n";
@@ -205,13 +188,12 @@ namespace wpfEx01
             byte[] pixels = new byte[histH * stride];
             
             // 전체 배경을 흰색으로 초기화
-            for (int i = 0; i < pixels.Length; i += 4)
+            for (int i = 0; i < pixels.Length; i++)
             {
-                pixels[i] = 255;           // Blue
-                pixels[i + 1] = 255;    // Green
-                pixels[i + 2] = 255;    // Red
-                pixels[i + 3] = 255;    // Alpha
+                pixels[i] = 255;
             }
+
+           
 
             // 히스토그램 막대 그리기 
             for (int i = 0; i < 256; i++)
@@ -222,12 +204,8 @@ namespace wpfEx01
                 {
                     for (int x = i * binW; x < (i + 1) * binW; x++)
                     {
-                        int index = y * stride + x * 4;
-
-                        pixels[index] = 0;              // Blue
-                        pixels[index + 1] = 0;        // Green
-                        pixels[index + 2] = 0;        // Red
-                        pixels[index + 3] = 255;    // Alpha
+                        int index = y * stride + x;
+                        pixels[index] = 0;
                     }
                 }
             }
