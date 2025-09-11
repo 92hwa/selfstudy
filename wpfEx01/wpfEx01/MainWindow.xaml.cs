@@ -44,45 +44,7 @@ namespace wpfEx01
                 FileStream fs = new FileStream(selectedFilePath, FileMode.Open, FileAccess.Read);
                 BinaryReader reader = new BinaryReader(fs);
 
-                if (selectedFileExt == ".jpeg" || selectedFileExt == ".jpg")
-                {
-                    BitmapImage bitmap = new BitmapImage();
-                    bitmap.BeginInit();
-                    bitmap.UriSource = new Uri(selectedFilePath);
-                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmap.EndInit();
-
-                    width = bitmap.PixelWidth;
-                    height = bitmap.PixelHeight;
-
-                    int stride = width * (bitmap.Format.BitsPerPixel / 8);
-                    byte[] pixels = new byte[height * stride];
-                    bitmap.CopyPixels(pixels, stride, 0);
-
-                    buffer16 = new ushort[width * height];
-                    for (int y = 0; y < height; y++)
-                    {
-                        for (int x = 0; x < width; x++)
-                        {
-                            int index = y * stride + x * 4;
-                            byte r = pixels[index + 2];
-                            byte g = pixels[index + 1];
-                            byte b = pixels[index];
-
-                            ushort gray16 = (ushort)((r + g + b) / 3 * 257);
-                            buffer16[y * width + x] = gray16;
-                        }
-                    }
-
-                    byte[] buffer8 = new byte[width * height];
-                    for (int i = 0; i < buffer16.Length; i++)
-                    {
-                        buffer8[i] = (byte)(buffer16[i] >> 8);
-                    }
-                }
-
-
-                else if (selectedFileExt == ".dcm")
+                if (selectedFileExt == ".dcm")
                 {
                     byte[] pixelData = null;
 
@@ -209,8 +171,8 @@ namespace wpfEx01
             }
 
             // 차트 크기
-            int histW = 512;
-            int histH = 400;
+            int histW = 65535;
+            int histH = 255;
             int binW = histW / 256;
 
             //최대값 찾기 (정규화용)
