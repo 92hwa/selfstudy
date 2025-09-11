@@ -18,10 +18,7 @@ namespace rawEx01
         string selectedFileName;
         string selectedFileExt;
         WriteableBitmap wb;
-        
-        int width = 3072;
-        int height = 3072;
-
+  
         int[] histogram;
         ushort[] buffer16;
         byte[] buffer8;
@@ -29,8 +26,6 @@ namespace rawEx01
         public MainWindow()
         {
             InitializeComponent();
-            buffer16 = new ushort[(int)(width * height)];
-            buffer8 = new byte[width * height];
         }
 
         private void btnLoad_Click(object sender, RoutedEventArgs e)
@@ -52,6 +47,11 @@ namespace rawEx01
 
                 if (selectedFileExt == ".dcm")
                 {
+
+                    int rows = 0;
+                    int cols = 0;
+                    byte[] pixelData = null;
+
                     reader.BaseStream.Seek(128, SeekOrigin.Begin); // Preamble 건너뛰기
                     string dicm = new string(reader.ReadChars(4)); // Prefix 확인
 
@@ -60,53 +60,77 @@ namespace rawEx01
                         /*string position = reader.BaseStream.Position.ToString();
                         string length = reader.BaseStream.Length.ToString();*/
 
-                        // Tag 값 읽기 
-                        ushort group = reader.ReadUInt16();
-                        ushort element = reader.ReadUInt16();
-                        string tag = $"({group:X4},{element:X4})";
+                        long pos = reader.BaseStream.Position;
 
-
-                        // VR 값 읽기
-                        string vr = Encoding.ASCII.GetString(reader.ReadBytes(2));
-
-
-                        // Value Length 값 읽기
-                        ushort length = reader.ReadUInt16();
-                        string valuelength = $"({length:X4})";
-
-
-                        // Value Field 읽기
-                        byte[] valueBytes = reader.ReadBytes(length);
-
+                        ushort group = reader.ReadUInt16(); // Tag Group
+                        ushort element = reader.ReadUInt16(); // Tag Element
+                        string vr = Encoding.ASCII.GetString(reader.ReadBytes(2)); // VR
                         
-                        // ROW 값 읽기
-                        // DICOM Dump 확인했을 때 Tag 값이 (0028, 0010) 이면 US Rows = <2958>
-                        if (group == 0x0028 && element == 0x0010)
+                        int vl = 0;
+                        if (vr == "OB"  || vr == "OW" || vr == "SQ" || vr == "UN") // Explicit VR
                         {
-                            int rows = BitConverter.ToUInt16(valueBytes, 0);
-                            //txtBox.Text += "Rows (Height): " + rows + "\n";
+                            reader.ReadUInt16();
+                            vl = (int)reader.ReadUInt32();
                         }
+                        else // Implicit VR
+                        {
+                            vl = reader.ReadUInt16();
+                        }
+                        byte[] valueBytes = reader.ReadBytes(vl); // Field
 
-                        /*
+
+                        // Rows
+                        if (group == 40 && element == 16)
+                        {
+                            rows = BitConverter.ToUInt16(valueBytes, 0);
+                            //txtBox.Text += $"({group}, {element}) \n";
+                            //txtBox.Text += $"rows: {rows} \n";
+                        }
 
                         // Columns
-                        else if (group == 0x0028 && element == 0x0011)
+                        else if (group == 40 && element == 17)
                         {
-                            int cols = BitConverter.ToUInt16(valueBytes, 0);
-                            txtBox.Text += "Columns (Width): " + cols + "\n";
+                            cols = BitConverter.ToUInt16(valueBytes, 0);
+                            //txtBox.Text += $"({group}, {element}) \n";
+                            //txtBox.Text += $"Columns (Width): {cols} \n";
                         }
 
-
                         // Pixel Data
-                        else if (group == 0x7FE0 && element == 0x0010)
+                        else if (group == 32736 && element == 16)
                         {
-                            txtBox.Text += "Pixel Data Length: " + valueBytes.Length + "\n";
-                        }*/
+                            pixelData = valueBytes;
+                            //txtBox.Text += $"({group}, {element}) \n";
+                            //txtBox.Text += "Pixel Data Length: " + valueBytes.Length + "\n";
+                        }
+
+                        else if (rows > 0 && cols > 0 && pixelData != null)
+                        {
+                            break;
+                        }
                     }
+
+                    byte[] buffer8 = new byte[rows * cols];
+                    for (int i = 0; i < buffer8.Length; i++)
+                    {
+                        if (i * 2 + 1 < pixelData.Length)
+                        {
+                            buffer8[i] = (byte)(pixelData[i * 2] | (pixelData[i * 2 + 1] << 8) >> 8);
+                        }
+                    }
+
+                    wb = new WriteableBitmap(cols, rows, 96, 96, PixelFormats.Gray8, null);
+                    wb.WritePixels(new Int32Rect(0, 0, cols, rows), buffer8, cols, 0);
+                    imgBox.Source = wb;
                 }
 
                 else if(selectedFileExt == ".raw")
                 {
+                    int width = 3072;
+                    int height = 3072;
+
+                    buffer16 = new ushort[(int)(width * height)];
+                    buffer8 = new byte[width * height];
+
                     for (int i = 0; i < width * height; i++)
                     {
                         ushort value = (ushort)reader.ReadUInt16();
@@ -122,11 +146,12 @@ namespace rawEx01
                     wb.WritePixels(new Int32Rect(0, 0, width, height), buffer8, width, 0);
                     imgBox.Source = wb;
 
-                    txtBox.Text = $"선택한 파일: {selectedFilePath} \n\n";
+                    
                 }
                 reader.Close();
                 fs.Close();
             }
+            txtBox.Text = $"선택한 파일: {selectedFilePath} \n\n";
         }
 
         private void btnCalculateHistogram_Click(object sender, RoutedEventArgs e)
@@ -248,8 +273,7 @@ namespace rawEx01
         }
 
 
-
-        private void btnLUT_Click(object sender, RoutedEventArgs e)
+        /*private void btnLUT_Click(object sender, RoutedEventArgs e)
         {
             if (buffer8 == null || histogram == null)
             {
@@ -289,7 +313,7 @@ namespace rawEx01
             child.SetImage(lutBitmap);
             child.Owner = this;
             child.Show();
-        }
+        }*/
 
         private void btnExit_Click(object sender, RoutedEventArgs e)
         {
