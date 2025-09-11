@@ -18,6 +18,9 @@ namespace rawEx01
         string selectedFileName;
         string selectedFileExt;
         WriteableBitmap wb;
+
+        int width;
+        int height;
   
         int[] histogram;
         ushort[] buffer16;
@@ -47,9 +50,6 @@ namespace rawEx01
 
                 if (selectedFileExt == ".dcm")
                 {
-
-                    int rows = 0;
-                    int cols = 0;
                     byte[] pixelData = null;
 
                     reader.BaseStream.Seek(128, SeekOrigin.Begin); // Preamble 건너뛰기
@@ -82,7 +82,7 @@ namespace rawEx01
                         // Rows
                         if (group == 40 && element == 16)
                         {
-                            rows = BitConverter.ToUInt16(valueBytes, 0);
+                            height = BitConverter.ToUInt16(valueBytes, 0);
                             //txtBox.Text += $"({group}, {element}) \n";
                             //txtBox.Text += $"rows: {rows} \n";
                         }
@@ -90,7 +90,7 @@ namespace rawEx01
                         // Columns
                         else if (group == 40 && element == 17)
                         {
-                            cols = BitConverter.ToUInt16(valueBytes, 0);
+                            width = BitConverter.ToUInt16(valueBytes, 0);
                             //txtBox.Text += $"({group}, {element}) \n";
                             //txtBox.Text += $"Columns (Width): {cols} \n";
                         }
@@ -103,13 +103,13 @@ namespace rawEx01
                             //txtBox.Text += "Pixel Data Length: " + valueBytes.Length + "\n";
                         }
 
-                        else if (rows > 0 && cols > 0 && pixelData != null)
+                        else if (height > 0 && width > 0 && pixelData != null)
                         {
                             break;
                         }
                     }
 
-                    byte[] buffer8 = new byte[rows * cols];
+                    buffer8 = new byte[height * width];
                     for (int i = 0; i < buffer8.Length; i++)
                     {
                         if (i * 2 + 1 < pixelData.Length)
@@ -118,15 +118,15 @@ namespace rawEx01
                         }
                     }
 
-                    wb = new WriteableBitmap(cols, rows, 96, 96, PixelFormats.Gray8, null);
-                    wb.WritePixels(new Int32Rect(0, 0, cols, rows), buffer8, cols, 0);
+                    wb = new WriteableBitmap(width, height, 96, 96, PixelFormats.Gray8, null);
+                    wb.WritePixels(new Int32Rect(0, 0, width, height), buffer8, width, 0);
                     imgBox.Source = wb;
                 }
 
                 else if(selectedFileExt == ".raw")
                 {
-                    int width = 3072;
-                    int height = 3072;
+                    width = 3072;
+                    height = 3072;
 
                     buffer16 = new ushort[(int)(width * height)];
                     buffer8 = new byte[width * height];
@@ -145,8 +145,6 @@ namespace rawEx01
                     wb = new WriteableBitmap(width, height, 96, 96, PixelFormats.Gray8, null);
                     wb.WritePixels(new Int32Rect(0, 0, width, height), buffer8, width, 0);
                     imgBox.Source = wb;
-
-                    
                 }
                 reader.Close();
                 fs.Close();
@@ -162,8 +160,8 @@ namespace rawEx01
                 return;
             }
 
-            int width = wb.PixelWidth;
-            int height = wb.PixelHeight;
+            width = wb.PixelWidth;
+            height = wb.PixelHeight;
             histogram = new int[256];
 
             byte[] pixels = new byte[width * height * 4];
@@ -273,7 +271,7 @@ namespace rawEx01
         }
 
 
-        /*private void btnLUT_Click(object sender, RoutedEventArgs e)
+        private void btnLUT_Click(object sender, RoutedEventArgs e)
         {
             if (buffer8 == null || histogram == null)
             {
@@ -286,7 +284,7 @@ namespace rawEx01
             int[] cumHist = new int[256];
             cumHist[0] = histogram[0];
 
-            for(int i = 1; i < 256; i++)
+            for (int i = 1; i < 256; i++)
             {
                 cumHist[i] = cumHist[i - 1] + histogram[i];
             }
@@ -313,7 +311,7 @@ namespace rawEx01
             child.SetImage(lutBitmap);
             child.Owner = this;
             child.Show();
-        }*/
+        }
 
         private void btnExit_Click(object sender, RoutedEventArgs e)
         {

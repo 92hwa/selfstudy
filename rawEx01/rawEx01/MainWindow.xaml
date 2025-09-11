@@ -10,7 +10,7 @@
         <Button Name="btnLoad" Content="Load" HorizontalAlignment="Left" Margin="440,22,0,0" VerticalAlignment="Top" Width="152" Height="35" Click="btnLoad_Click"/>
         <Button Name="btnCalculateHistogram"  Content="Calculate Histogram" HorizontalAlignment="Left" Margin="440,72,0,0" VerticalAlignment="Top" Width="152" Height="35" Click="btnCalculateHistogram_Click"/>
         <Button Name="btnHistogramChart"  Content="Histogram Chart" HorizontalAlignment="Left" Margin="440,121,0,0" VerticalAlignment="Top" Width="152" Height="35" Click="btnHistogramChart_Click"/>
-        <!--<Button Name="btnLUT"  Content="LUT" HorizontalAlignment="Left" Margin="440,172,0,0" VerticalAlignment="Top" Width="152" Height="35" Click="btnLUT_Click"/> -->
+        <Button Name="btnLUT"  Content="LUT" HorizontalAlignment="Left" Margin="440,172,0,0" VerticalAlignment="Top" Width="152" Height="35" Click="btnLUT_Click"/>
         <Button Name="btnExit"  Content="Exit" HorizontalAlignment="Left" Margin="440,414,0,0" VerticalAlignment="Top" Width="152" Height="35" Click="btnExit_Click"/>
 
         <GroupBox Header="Preview" HorizontalAlignment="Left" Height="321" Margin="13,11,0,0" VerticalAlignment="Top" Width="413" FontWeight="Bold" RenderTransformOrigin="0.5,0.5">
