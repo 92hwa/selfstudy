@@ -19,7 +19,7 @@ namespace wpfEx01
 
         int width;
         int height;
-  
+
         int[] histogram;
         ushort[] buffer16;
         byte[] buffer8;
@@ -32,7 +32,7 @@ namespace wpfEx01
         private void btnLoad_Click(object sender, RoutedEventArgs e)
         {
             openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "All Files|*.*|RAW Files|*.raw|DICOM Files|*.dcm";
+            openFileDialog.Filter = "All Files|*.*|RAW Files|*.raw|DICOM Files|*.dcm|JPEG Files|*.jpeg;*.jpg";
             openFileDialog.Multiselect = false;
 
             if (openFileDialog.ShowDialog() == true)
@@ -40,12 +40,49 @@ namespace wpfEx01
                 selectedFilePath = openFileDialog.FileName;
                 selectedFileExt = Path.GetExtension(selectedFilePath);
 
-
-                // DICOM 파일을 바이너리 모드로 열고 순서대로 읽기
-                FileStream fs = new FileStream(selectedFilePath, FileMode.Open, FileAccess.Read); 
+                // 파일을 바이너리 모드로 열기
+                FileStream fs = new FileStream(selectedFilePath, FileMode.Open, FileAccess.Read);
                 BinaryReader reader = new BinaryReader(fs);
 
-                if (selectedFileExt == ".dcm")
+                if (selectedFileExt == ".jpeg" || selectedFileExt == ".jpg")
+                {
+                    BitmapImage bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.UriSource = new Uri(selectedFilePath);
+                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmap.EndInit();
+
+                    width = bitmap.PixelWidth;
+                    height = bitmap.PixelHeight;
+
+                    int stride = width * (bitmap.Format.BitsPerPixel / 8);
+                    byte[] pixels = new byte[height * stride];
+                    bitmap.CopyPixels(pixels, stride, 0);
+
+                    buffer16 = new ushort[width * height];
+                    for (int y = 0; y < height; y++)
+                    {
+                        for (int x = 0; x < width; x++)
+                        {
+                            int index = y * stride + x * 4;
+                            byte r = pixels[index + 2];
+                            byte g = pixels[index + 1];
+                            byte b = pixels[index];
+
+                            ushort gray16 = (ushort)((r + g + b) / 3 * 257);
+                            buffer16[y * width + x] = gray16;
+                        }
+                    }
+
+                    byte[] buffer8 = new byte[width * height];
+                    for (int i = 0; i < buffer16.Length; i++)
+                    {
+                        buffer8[i] = (byte)(buffer16[i] >> 8);
+                    }
+                }
+
+
+                else if (selectedFileExt == ".dcm")
                 {
                     byte[] pixelData = null;
 
@@ -57,34 +94,31 @@ namespace wpfEx01
                         ushort group = reader.ReadUInt16(); // Tag Group
                         ushort element = reader.ReadUInt16(); // Tag Element
                         string vr = Encoding.ASCII.GetString(reader.ReadBytes(2)); // VR
-                        
+
                         int vl = 0;
-                        if (vr == "OB"  || vr == "OW" || vr == "SQ" || vr == "UN") // Explicit VR
+                        if (vr == "OB" || vr == "OW" || vr == "SQ" || vr == "UN") // Explicit VR
                         {
                             reader.ReadUInt16();
                             vl = (int)reader.ReadUInt32();
                         }
+
                         else // Implicit VR
                         {
                             vl = reader.ReadUInt16();
                         }
                         byte[] valueBytes = reader.ReadBytes(vl); // Field
 
-
-                        // Rows
-                        if (group == 40 && element == 16)
+                        if (group == 40 && element == 16) // Rows
                         {
                             height = BitConverter.ToUInt16(valueBytes, 0);
                         }
 
-                        // Columns
-                        else if (group == 40 && element == 17)
+                        else if (group == 40 && element == 17) // Columns
                         {
                             width = BitConverter.ToUInt16(valueBytes, 0);
                         }
 
-                        // Pixel Data
-                        else if (group == 32736 && element == 16)
+                        else if (group == 32736 && element == 16) // Pixel Data
                         {
                             pixelData = valueBytes;
                         }
@@ -106,7 +140,7 @@ namespace wpfEx01
                     }
                 }
 
-                else if(selectedFileExt == ".raw")
+                else if (selectedFileExt == ".raw")
                 {
                     width = 3072;
                     height = 3072;
@@ -186,14 +220,14 @@ namespace wpfEx01
             WriteableBitmap histBitmap = new WriteableBitmap(histW, histH, 96, 96, PixelFormats.Bgr32, null);
             int stride = histW * 4;
             byte[] pixels = new byte[histH * stride];
-            
+
             // 전체 배경을 흰색으로 초기화
             for (int i = 0; i < pixels.Length; i++)
             {
                 pixels[i] = 255;
             }
 
-           
+
 
             // 히스토그램 막대 그리기 
             for (int i = 0; i < 256; i++)
