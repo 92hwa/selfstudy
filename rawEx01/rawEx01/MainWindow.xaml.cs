@@ -13,6 +13,7 @@ namespace rawEx01
 
     public partial class MainWindow : System.Windows.Window
     {
+        OpenFileDialog openFileDialog;
         string selectedFilePath;
         string selectedFileName;
         string selectedFileExt;
@@ -34,7 +35,7 @@ namespace rawEx01
 
         private void btnLoad_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "All Files|*.*|RAW Files|*.raw|DICOM Files|*.dcm";
             openFileDialog.Multiselect = false;
 
@@ -44,31 +45,49 @@ namespace rawEx01
                 selectedFileName = Path.GetFileName(selectedFilePath);
                 selectedFileExt = Path.GetExtension(selectedFilePath);
 
-                FileStream fs = new FileStream(selectedFilePath, FileMode.Open, FileAccess.Read);
+
+                // DICOM 파일을 바이너리 모드로 열기
+                FileStream fs = new FileStream(selectedFilePath, FileMode.Open, FileAccess.Read); 
                 BinaryReader reader = new BinaryReader(fs);
 
                 if (selectedFileExt == ".dcm")
                 {
-                    reader.BaseStream.Seek(128, SeekOrigin.Begin);
-                    string dicm = new string(reader.ReadChars(4));
+                    reader.BaseStream.Seek(128, SeekOrigin.Begin); // Preamble 건너뛰기
+                    string dicm = new string(reader.ReadChars(4)); // Prefix 확인
 
-                    while (reader.BaseStream.Position < reader.BaseStream.Length)
+                    while (reader.BaseStream.Position < reader.BaseStream.Length) // DICM 이후 Tag 읽기
                     {
+                        /*string position = reader.BaseStream.Position.ToString();
+                        string length = reader.BaseStream.Length.ToString();*/
+
+                        // Tag 값 읽기 
                         ushort group = reader.ReadUInt16();
                         ushort element = reader.ReadUInt16();
-                        string vr = Encoding.ASCII.GetString(reader.ReadBytes(2));
-                        ushort length = reader.ReadUInt16();
+                        string tag = $"({group:X4},{element:X4})";
 
+
+                        // VR 값 읽기
+                        string vr = Encoding.ASCII.GetString(reader.ReadBytes(2));
+
+
+                        // Value Length 값 읽기
+                        ushort length = reader.ReadUInt16();
+                        string valuelength = $"({length:X4})";
+
+
+                        // Value Field 읽기
                         byte[] valueBytes = reader.ReadBytes(length);
 
-
-                        // Rows
+                        
+                        // ROW 값 읽기
+                        // DICOM Dump 확인했을 때 Tag 값이 (0028, 0010) 이면 US Rows = <2958>
                         if (group == 0x0028 && element == 0x0010)
                         {
                             int rows = BitConverter.ToUInt16(valueBytes, 0);
-                            txtBox.Text += "Rows (Height): " + rows + "\n";
+                            //txtBox.Text += "Rows (Height): " + rows + "\n";
                         }
 
+                        /*
 
                         // Columns
                         else if (group == 0x0028 && element == 0x0011)
@@ -82,7 +101,7 @@ namespace rawEx01
                         else if (group == 0x7FE0 && element == 0x0010)
                         {
                             txtBox.Text += "Pixel Data Length: " + valueBytes.Length + "\n";
-                        }
+                        }*/
                     }
                 }
 
