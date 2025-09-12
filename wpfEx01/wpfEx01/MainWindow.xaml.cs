@@ -4,8 +4,11 @@ using System.Text;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Linq;
 using Microsoft.Win32;
+using System.Drawing;
+using System.Drawing.Imaging;
+using OpenCvSharp;
+using System.Linq;
 
 namespace wpfEx01
 {
@@ -23,12 +26,15 @@ namespace wpfEx01
         int[] histogram;
         ushort[] buffer16;
         byte[] buffer8;
+        byte[] pixels;
+        byte gray;
 
         public MainWindow()
         {
             InitializeComponent();
         }
 
+        #region Image Load
         private void btnLoad_Click(object sender, RoutedEventArgs e)
         {
             openFileDialog = new OpenFileDialog();
@@ -40,11 +46,10 @@ namespace wpfEx01
                 selectedFilePath = openFileDialog.FileName;
                 selectedFileExt = Path.GetExtension(selectedFilePath);
 
-                // 파일을 바이너리 모드로 열기
-                FileStream fs = new FileStream(selectedFilePath, FileMode.Open, FileAccess.Read);
+                FileStream fs = new FileStream(selectedFilePath, FileMode.Open, FileAccess.Read); // 파일을 바이너리 모드로 열기
                 BinaryReader reader = new BinaryReader(fs);
 
-                if (selectedFileExt == ".dcm")
+                if (selectedFileExt == ".dcm") // DICOM 파일 읽기
                 {
                     byte[] pixelData = null;
 
@@ -131,115 +136,37 @@ namespace wpfEx01
             }
             txtBox.Text = $"선택한 파일: {selectedFilePath} \n\n";
         }
+        #endregion
 
-        private void btnCalculateHistogram_Click(object sender, RoutedEventArgs e)
+
+        #region Draw Histogram Chart
+        private void btnHistogramChart_Click(object sender, RoutedEventArgs e)
         {
-            if (buffer8 == null)
+            if (wb == null)
             {
                 MessageBox.Show("먼저 파일을 불러와주세요.");
                 return;
             }
 
-            width = wb.PixelWidth;
-            height = wb.PixelHeight;
-            histogram = new int[256];
+            int[] histogram = new int[256];
 
-            byte[] pixels = new byte[width * height * 4];
-            wb.CopyPixels(pixels, width * 4, 0);
-
-            for (int i = 0; i < pixels.Length; i++)
+            for (int i = 0; i < buffer8.Length; i++)
             {
-                byte gray = pixels[i];
-                histogram[gray]++;
+                histogram[buffer8[i]]++;
             }
 
-            txtBox.Text += "*** Histogram Output \n";
-
+            txtBox.Text += "Histogram Output *** \n";
             for (int i = 0; i < 256; i++)
             {
-                txtBox.Text += histogram[i];
+                txtBox.Text += $"[{i}]: {(histogram[i]/histogram.Average())}\n";
             }
-            txtBox.Text += "\n\n";
+            txtBox.Text += $"Max: {histogram.Max()}\n";
+            txtBox.Text += $"Min: {histogram.Min()}\n";
+            txtBox.Text += $"Sum: {histogram.Sum()}\n";
+            txtBox.Text += $"Avg: {histogram.Average()}\n";
         }
+        #endregion
 
-        private void btnHistogramChart_Click(object sender, RoutedEventArgs e)
-        {
-            if (histogram == null)
-            {
-                MessageBox.Show("먼저 히스토그램을 계산 해 주세요.");
-                return;
-            }
-
-            // 차트 크기
-            int histW = 65535;
-            int histH = 255;
-            int binW = histW / 256;
-
-            //최대값 찾기 (정규화용)
-            int maxVal = histogram.Max();
-
-            // 비트맵 생성
-            WriteableBitmap histBitmap = new WriteableBitmap(histW, histH, 96, 96, PixelFormats.Bgr32, null);
-            int stride = histW * 4;
-            byte[] pixels = new byte[histH * stride];
-
-            // 전체 배경을 흰색으로 초기화
-            for (int i = 0; i < pixels.Length; i++)
-            {
-                pixels[i] = 255;
-            }
-
-
-
-            // 히스토그램 막대 그리기 
-            for (int i = 0; i < 256; i++)
-            {
-                int barHeight = (int)((double)histogram[i] / maxVal * histH);
-
-                for (int y = histH - 1; y >= histH - barHeight; y--)
-                {
-                    for (int x = i * binW; x < (i + 1) * binW; x++)
-                    {
-                        int index = y * stride + x;
-                        pixels[index] = 0;
-                    }
-                }
-            }
-
-            histBitmap.WritePixels(new Int32Rect(0, 0, histW, histH), pixels, stride, 0);
-
-            ChildWindow child = new ChildWindow();
-            child.SetImage(histBitmap);
-            child.Owner = this;
-            child.Show();
-
-
-            /*
-            // OpenCV 사용
-            Mat histImage = new Mat(histH, histW, MatType.CV_8UC3, Scalar.All(255));
-
-            // 값을 0 ~ hist 범위로 변환
-            int maxVal = histogram.Max();
-            float[] normHist = new float[256];
-
-            for (int i = 0; i < 256; i++)
-            {
-                normHist[i] = (float)histogram[i] / maxVal * histW;
-            }
-
-            for (int i = 1; i < 256; i++)
-            {
-                Cv2.Line(histImage,
-                    new OpenCvSharp.Point((i - 1) * binW, histH - (int)normHist[i - 1]),
-                    new OpenCvSharp.Point(i * binW, histH - (int)normHist[i]),
-                    Scalar.Black, 2, LineTypes.AntiAlias, 0);
-            }
-
-            Cv2.ImShow("Histogram", histImage);
-            Cv2.WaitKey(0);
-            Cv2.DestroyAllWindows();
-            */
-        }
 
 
         private void btnLUT_Click(object sender, RoutedEventArgs e)
@@ -287,6 +214,25 @@ namespace wpfEx01
         private void btnExit_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
+        }
+
+        public int[][] GetHist(Bitmap bmp)
+        {
+            int[] Red = new int[256];
+            int[] Green = new int[256];
+            int[] Blue = new int[256];
+
+            for (int i = 0; i < bmp.Width; i++)
+            {
+                for (int j = 0; j < bmp.Height; j++)
+                {
+                    System.Drawing.Color pixelColor = bmp.GetPixel(i, j);
+                    Red[pixelColor.R]++;
+                    Green[pixelColor.G]++;
+                    Blue[pixelColor.B]++;
+                }
+            }
+            return new int[][] { Red, Green, Blue };
         }
     }
 }

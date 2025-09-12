@@ -72,3 +72,10 @@ D:\workspace\selfstudy\wpfEx01\wpfEx01\obj\x64\Debug\wpfEx01.csproj.CoreCompileI
 D:\workspace\selfstudy\wpfEx01\wpfEx01\obj\x64\Debug\wpfEx01.csproj.CopyComplete
 D:\workspace\selfstudy\wpfEx01\wpfEx01\obj\x64\Debug\wpfEx01.exe
 D:\workspace\selfstudy\wpfEx01\wpfEx01\obj\x64\Debug\wpfEx01.pdb
+D:\workspace\selfstudy\wpfEx01\wpfEx01\bin\x64\Debug\System.Drawing.dll
+D:\workspace\selfstudy\wpfEx01\wpfEx01\bin\x64\Debug\LiveCharts.dll
+D:\workspace\selfstudy\wpfEx01\wpfEx01\bin\x64\Debug\LiveCharts.Wpf.dll
+D:\workspace\selfstudy\wpfEx01\wpfEx01\bin\x64\Debug\LiveCharts.pdb
+D:\workspace\selfstudy\wpfEx01\wpfEx01\bin\x64\Debug\LiveCharts.xml
+D:\workspace\selfstudy\wpfEx01\wpfEx01\bin\x64\Debug\LiveCharts.Wpf.pdb
+D:\workspace\selfstudy\wpfEx01\wpfEx01\bin\x64\Debug\LiveCharts.Wpf.xml

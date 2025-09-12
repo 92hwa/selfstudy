@@ -4,17 +4,17 @@
 winexe
 C#
 .cs
-D:\workspace\selfstudy\rawEx01\rawEx01\obj\x64\Debug\
+D:\workspace\selfstudy\wpfEx01\wpfEx01\obj\x64\Debug\
 wpfEx01
 none
 false
 DEBUG;TRACE
-D:\workspace\selfstudy\rawEx01\rawEx01\App.xaml
+D:\workspace\selfstudy\wpfEx01\wpfEx01\App.xaml
 3686578708
-11365018425
+2827849447
 82145309575
-22713588493
+24924109525
 ChildWindow.xaml;ChildWindow2.xaml;MainWindow.xaml;
 
-False
+True
 

@@ -9,5 +9,6 @@
 //------------------------------------------------------------------------------
 
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("opencvsharpextern.dll")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("system.drawing.dll")]
 
 
