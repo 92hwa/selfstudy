@@ -149,6 +149,7 @@ namespace wpfEx01
             }
 
             int[] histogram = new int[256];
+            int[] histogramAvg = new int[256];
 
             for (int i = 0; i < buffer8.Length; i++)
             {
@@ -158,12 +159,59 @@ namespace wpfEx01
             txtBox.Text += "Histogram Output *** \n";
             for (int i = 0; i < 256; i++)
             {
-                txtBox.Text += $"[{i}]: {(histogram[i]/histogram.Average())}\n";
+                //txtBox.Text += $"[{i}]: {(histogram[i]/histogram.Average())}\n";
+                histogramAvg[i] = (int)((histogram[i]) / (histogram.Average()));
+                txtBox.Text += $"histogramAvg[{i}]: {histogramAvg[i]} \n";
             }
-            txtBox.Text += $"Max: {histogram.Max()}\n";
+            /*txtBox.Text += $"Max: {histogram.Max()}\n";
             txtBox.Text += $"Min: {histogram.Min()}\n";
             txtBox.Text += $"Sum: {histogram.Sum()}\n";
-            txtBox.Text += $"Avg: {histogram.Average()}\n";
+            txtBox.Text += $"Avg: {histogram.Average()}\n";*/
+
+            txtBox.Text += $"Max: {histogramAvg.Max()}\n";
+            txtBox.Text += $"Min: {histogramAvg.Min()}\n";
+
+            int histW = 500;
+            int histH = 400;
+            WriteableBitmap histBitmap = new WriteableBitmap(histW, histH, 96, 96, PixelFormats.Bgr32, null);
+            int stride = histW * 4;
+            byte[] pixels = new byte[histH * stride];
+
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                pixels[i] = 255;
+            }
+
+            double binW = (double)histW / histogram.Length; // x축 단위
+            int maxVal = histogram.Max(); // y축 최대값
+
+            for (int i = 0; i < histogram.Length; i++)
+            {
+                int barHeight = (int)((double)histogram[i] / maxVal * histH);
+
+                int xStart = (int)(i * binW);
+                int xEnd = (int)((i + 1) * binW);
+
+                for (int j = histH - 1; j >= histH - barHeight; j--) // y축
+                {
+                    for (int k = xStart; k < xEnd; k++) // x축
+                    {
+                        int index = j * stride + k * 4;
+                        pixels[index] = 0;       // Blue
+                        pixels[index + 1] = 0;   // Green
+                        pixels[index + 2] = 0;   // Red
+                        pixels[index + 3] = 255; // Alpha
+                    }
+                }
+            }
+
+
+            histBitmap.WritePixels(new Int32Rect(0, 0, histW, histH), pixels, stride, 0);
+
+            ChildWindow child = new ChildWindow();
+            child.SetImage(histBitmap);
+            child.Owner = this;
+            child.Show();
         }
         #endregion
 
@@ -214,25 +262,6 @@ namespace wpfEx01
         private void btnExit_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
-        }
-
-        public int[][] GetHist(Bitmap bmp)
-        {
-            int[] Red = new int[256];
-            int[] Green = new int[256];
-            int[] Blue = new int[256];
-
-            for (int i = 0; i < bmp.Width; i++)
-            {
-                for (int j = 0; j < bmp.Height; j++)
-                {
-                    System.Drawing.Color pixelColor = bmp.GetPixel(i, j);
-                    Red[pixelColor.R]++;
-                    Green[pixelColor.G]++;
-                    Blue[pixelColor.B]++;
-                }
-            }
-            return new int[][] { Red, Green, Blue };
         }
     }
 }
