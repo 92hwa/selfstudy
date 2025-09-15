@@ -1,0 +1,18 @@
+﻿<Window x:Class="wpfEx01.ChildWindow_Contrast"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:wpfEx01"
+        mc:Ignorable="d"
+        Title="ChildWindow_Contrast" Height="638.093" Width="716.955">
+    <Grid>
+        <Image Name="imgBox3" HorizontalAlignment="Left" Height="400" Margin="22,16,0,0" VerticalAlignment="Top" Width="500" Stretch="Uniform"/>
+        <Button Name="btnContrastUp" Content="UP" HorizontalAlignment="Left" Margin="539,108,0,0" VerticalAlignment="Top" Width="141" Height="35" Click="btnContrastUp_Click"/>
+        <Button Name="btnInitialize" Content="Default" HorizontalAlignment="Left" Margin="539,62,0,0" VerticalAlignment="Top" Width="141" Height="35" Click="btnInitialize_Click"/>
+        <Button Name="btnContrastDown" Content="Down" HorizontalAlignment="Left" Margin="539,154,0,0" VerticalAlignment="Top" Width="141" Height="35" Click="btnContrastDown_Click"/>
+        <Button Name="btnExit" Content="Exit" HorizontalAlignment="Left" Margin="539,554,0,0" VerticalAlignment="Top" Width="141" Height="35" Click="btnExit_Click"/>
+        <Button Name="btnLUT" Content="LUT 생성" HorizontalAlignment="Left" Margin="539,16,0,0" VerticalAlignment="Top" Width="141" Height="35" Click="btnLUT_Click"/>
+        <TextBox Name="txtBox" VerticalScrollBarVisibility="Visible" HorizontalAlignment="Left" Height="147" Margin="22,442,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="500"/>
+    </Grid>
+</Window>

@@ -5,9 +5,6 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
-using System.Drawing;
-using System.Drawing.Imaging;
-using OpenCvSharp;
 using System.Linq;
 
 namespace wpfEx01
@@ -23,11 +20,8 @@ namespace wpfEx01
         int width;
         int height;
 
-        int[] histogram;
         ushort[] buffer16;
         byte[] buffer8;
-        byte[] pixels;
-        byte gray;
 
         public MainWindow()
         {
@@ -107,8 +101,6 @@ namespace wpfEx01
                     }
                 }
 
-
-
                 else if (selectedFileExt == ".raw")
                 {
                     width = 3072;
@@ -142,7 +134,6 @@ namespace wpfEx01
         #endregion
 
 
-
         #region Histogram
         private void btnHistogramChart_Click(object sender, RoutedEventArgs e)
         {
@@ -151,7 +142,6 @@ namespace wpfEx01
                 MessageBox.Show("먼저 파일을 불러와주세요.");
                 return;
             }
-
 
 
             #region 히스토그램 계산
@@ -164,7 +154,6 @@ namespace wpfEx01
             txtBox.Text += $"histogram.Max: {histogram.Max()} \n";
             txtBox.Text += $"histogram.Min: {histogram.Min()} \n";
             #endregion 히스토그램 계산
-
 
 
             #region 히스토그램을 그릴 빈 이미지 생성 
@@ -186,7 +175,6 @@ namespace wpfEx01
                 pixels[i] = 255;
             }
             #endregion
-
 
 
             #region 히스토그램 정규화 (y축 축소를 위한)
@@ -268,72 +256,30 @@ namespace wpfEx01
             #endregion
 
             histBitmap.WritePixels(new Int32Rect(0, 0, histW, histH), pixels, stride, 0);
-            ChildWindow child = new ChildWindow();
-            child.SetImage(histBitmap);
-            child.Owner = this;
-            child.Show();
+            ChildWindow childHistogram = new ChildWindow();
+            childHistogram.SetImage(histBitmap);
+            childHistogram.Owner = this;
+            childHistogram.Show();
         }
-        #endregion Histogram
+        #endregion
 
 
-
-        /*private void btnLUT_Click(object sender, RoutedEventArgs e)
+        #region Contrast
+        private void btnContrast_Click(object sender, RoutedEventArgs e)
         {
-            if (buffer8 == null || histogram == null)
+            if(imgBox.Source is BitmapSource bmpSource)
             {
-                MessageBox.Show("먼저 파일을 불러오고 히스토그램을 계산 해 주세요.");
-                return;
+                ChildWindow_Contrast childContrast = new ChildWindow_Contrast(bmpSource);
+                childContrast.Owner = this;
+                childContrast.Show();
             }
-
-            // LUT 생성 (히스토그램 평활화)
-            int totalPixels = buffer8.Length;
-            int[] cumHist = new int[256];
-            cumHist[0] = histogram[0];
-
-            for (int i = 1; i < 256; i++)
+            else
             {
-                cumHist[i] = cumHist[i - 1] + histogram[i];
+                MessageBox.Show("이미지를 불러온 후에 Contrast 창을 열어주세요.");
             }
-
-            byte[] LUT = new byte[256];
-            for (int i = 0; i < 256; i++)
-            {
-                LUT[i] = (byte)((cumHist[i] - cumHist[0]) * 255 / (totalPixels - 1));
-            }
-
-            // LUT 적용
-            byte[] lutBuffer = new byte[buffer8.Length];
-            for (int i = 0; i < buffer8.Length; i++)
-            {
-                lutBuffer[i] = LUT[buffer8[i]];
-            }
-
-            // 새로운 WriteableBitmap 생성
-            WriteableBitmap lutBitmap = new WriteableBitmap(width, height, 96, 96, PixelFormats.Gray8, null);
-            lutBitmap.WritePixels(new Int32Rect(0, 0, width, height), lutBuffer, width, 0);
-
-            // 이미지 컨트롤에 적용
-            ChildWindow child = new ChildWindow();
-            child.SetImage(lutBitmap);
-            child.Owner = this;
-            child.Show();
-        }*/
-
-
-        private void btnLUTBone_Click(object sender, RoutedEventArgs e)
-        {
-
         }
+        #endregion
 
-        private void btnLUTAL_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void btnLUTMT_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
 
         private void btnExit_Click(object sender, RoutedEventArgs e)
         {

@@ -9,6 +9,10 @@
 //------------------------------------------------------------------------------
 
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("opencvsharpextern.dll")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("opencv_videoio_ffmpeg440.dll")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("opencvsharpextern.dll")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("opencv_videoio_ffmpeg440_64.dll")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("opencvsharpextern.dll")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("system.drawing.dll")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("libharfbuzzsharp.dylib")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("libharfbuzzsharp.dylib")]
