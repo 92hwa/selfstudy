@@ -8,11 +8,10 @@
         Title="ChildWindow_Contrast" Height="638.093" Width="716.955">
     <Grid>
         <Image Name="imgBox3" HorizontalAlignment="Left" Height="400" Margin="22,16,0,0" VerticalAlignment="Top" Width="500" Stretch="Uniform"/>
-        <Button Name="btnContrastUp" Content="UP" HorizontalAlignment="Left" Margin="539,108,0,0" VerticalAlignment="Top" Width="141" Height="35" Click="btnContrastUp_Click"/>
-        <Button Name="btnInitialize" Content="Default" HorizontalAlignment="Left" Margin="539,62,0,0" VerticalAlignment="Top" Width="141" Height="35" Click="btnInitialize_Click"/>
-        <Button Name="btnContrastDown" Content="Down" HorizontalAlignment="Left" Margin="539,154,0,0" VerticalAlignment="Top" Width="141" Height="35" Click="btnContrastDown_Click"/>
+        <Button Name="btnContrastUp" Content="UP" HorizontalAlignment="Left" Margin="539,69,0,0" VerticalAlignment="Top" Width="141" Height="35" Click="btnContrastUp_Click"/>
+        <Button Name="btnInitialize" Content="Default" HorizontalAlignment="Left" Margin="539,16,0,0" VerticalAlignment="Top" Width="141" Height="35" Click="btnInitialize_Click"/>
+        <Button Name="btnContrastDown" Content="Down" HorizontalAlignment="Left" Margin="539,124,0,0" VerticalAlignment="Top" Width="141" Height="35" Click="btnContrastDown_Click"/>
         <Button Name="btnExit" Content="Exit" HorizontalAlignment="Left" Margin="539,554,0,0" VerticalAlignment="Top" Width="141" Height="35" Click="btnExit_Click"/>
-        <Button Name="btnLUT" Content="LUT 생성" HorizontalAlignment="Left" Margin="539,16,0,0" VerticalAlignment="Top" Width="141" Height="35" Click="btnLUT_Click"/>
         <TextBox Name="txtBox" VerticalScrollBarVisibility="Visible" HorizontalAlignment="Left" Height="147" Margin="22,442,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="500"/>
     </Grid>
 </Window>

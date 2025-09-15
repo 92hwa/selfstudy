@@ -20,23 +20,6 @@ namespace wpfEx01
             currentImg = new WriteableBitmap(src);
             imgBox3.Source = currentImg;
         }
-        
-        private void btnLUT_Click(object sender, RoutedEventArgs e)
-        {
-            byte[] table = new byte[256];
-            for(int i = 0; i < 256; i++)
-            {
-                table[i] = (byte)(255 - i);
-            }
-
-            txtBox.Text += "LUT Table \n";
-            for(int i = 0; i < table.Length; i++)
-            {
-                txtBox.Text += $"{table[i]}, ";
-                if ((i + 1) % 16 == 0) txtBox.Text += "\n";
-            }
-
-        }
 
         private void btnContrastUp_Click(object sender, RoutedEventArgs e)
         {
@@ -82,8 +65,6 @@ namespace wpfEx01
             currentImg.WritePixels(new Int32Rect(0, 0, width, height), output, stride, 0);
             imgBox3.Source = currentImg;
         }
-
-        
 
         private void btnExit_Click(object sender, RoutedEventArgs e)
         {
