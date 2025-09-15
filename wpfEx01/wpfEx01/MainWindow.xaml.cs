@@ -49,7 +49,7 @@ namespace wpfEx01
                 FileStream fs = new FileStream(selectedFilePath, FileMode.Open, FileAccess.Read); // 파일을 바이너리 모드로 열기
                 BinaryReader reader = new BinaryReader(fs);
 
-                if (selectedFileExt == ".dcm") // DICOM 파일 읽기
+                if (selectedFileExt == ".dcm")
                 {
                     byte[] pixelData = null;
 
@@ -107,6 +107,8 @@ namespace wpfEx01
                     }
                 }
 
+
+
                 else if (selectedFileExt == ".raw")
                 {
                     width = 3072;
@@ -134,12 +136,14 @@ namespace wpfEx01
                 reader.Close();
                 fs.Close();
             }
+
             txtBox.Text = $"선택한 파일: {selectedFilePath} \n\n";
         }
         #endregion
 
 
-        #region Draw Histogram Chart
+
+        #region Histogram
         private void btnHistogramChart_Click(object sender, RoutedEventArgs e)
         {
             if (wb == null)
@@ -148,76 +152,132 @@ namespace wpfEx01
                 return;
             }
 
-            int[] histogram = new int[256];
-            int[] histogramAvg = new int[256];
 
+
+            #region 히스토그램 계산
+            int[] histogram = new int[256];
             for (int i = 0; i < buffer8.Length; i++)
             {
                 histogram[buffer8[i]]++;
             }
-
             txtBox.Text += "Histogram Output *** \n";
-            for (int i = 0; i < 256; i++)
-            {
-                //txtBox.Text += $"[{i}]: {(histogram[i]/histogram.Average())}\n";
-                histogramAvg[i] = (int)((histogram[i]) / (histogram.Average()));
-                txtBox.Text += $"histogramAvg[{i}]: {histogramAvg[i]} \n";
-            }
-            /*txtBox.Text += $"Max: {histogram.Max()}\n";
-            txtBox.Text += $"Min: {histogram.Min()}\n";
-            txtBox.Text += $"Sum: {histogram.Sum()}\n";
-            txtBox.Text += $"Avg: {histogram.Average()}\n";*/
+            txtBox.Text += $"histogram.Max: {histogram.Max()} \n";
+            txtBox.Text += $"histogram.Min: {histogram.Min()} \n";
+            #endregion 히스토그램 계산
 
-            txtBox.Text += $"Max: {histogramAvg.Max()}\n";
-            txtBox.Text += $"Min: {histogramAvg.Min()}\n";
 
-            int histW = 500;
-            int histH = 400;
+
+            #region 히스토그램을 그릴 빈 이미지 생성 
+            int histW = 500, histH = 400;
             WriteableBitmap histBitmap = new WriteableBitmap(histW, histH, 96, 96, PixelFormats.Bgr32, null);
+
             int stride = histW * 4;
+            // stride는 한 줄(row)의 바이트 수
+            // 픽셀 포맷이 Bgr32라서 1픽셀 = 4바이트
+            // 따라서 한 줄에 필요한 바이트 수 = 가로 픽셀 * 4 = 2,000바이트
+
             byte[] pixels = new byte[histH * stride];
+            // 히스토그램 이미지의 픽셀 데이터를 담을 배열
+            // 길이는 세로 픽셀 * stride = 400 * 2,000 = 800,000
+            // 이 배열에 RGB(A) 값을 직접 넣어서 이미지 그리기 가능
 
             for (int i = 0; i < pixels.Length; i++)
             {
                 pixels[i] = 255;
             }
+            #endregion
 
-            double binW = (double)histW / histogram.Length; // x축 단위
-            int maxVal = histogram.Max(); // y축 최대값
 
+
+            #region 히스토그램 정규화 (y축 축소를 위한)
+            byte[][] colors = new byte[3][]
+            {
+                new byte[]{ 255, 0, 0 },
+                new byte[]{ 0, 255, 0 },
+                new byte[]{ 0, 0, 255 }
+            };
+            int maxVal = histogram.Max();
+            double[] histNormalized = new double[histogram.Length];
+            double binW = (double)histW / histogram.Length;
             for (int i = 0; i < histogram.Length; i++)
             {
-                int barHeight = (int)((double)histogram[i] / maxVal * histH);
-
+                int barheight = (int)((double)histogram[i] / maxVal * histH);
                 int xStart = (int)(i * binW);
                 int xEnd = (int)((i + 1) * binW);
+                histNormalized[i] = (double)histogram[i] / maxVal;
 
-                for (int j = histH - 1; j >= histH - barHeight; j--) // y축
+                byte[] color = colors[i % 3];
+
+                for (int j = histH - 1; j >= histH - barheight; j--)
                 {
-                    for (int k = xStart; k < xEnd; k++) // x축
+                    for (int k = xStart; k < xEnd; k++)
                     {
                         int index = j * stride + k * 4;
-                        pixels[index] = 0;       // Blue
-                        pixels[index + 1] = 0;   // Green
-                        pixels[index + 2] = 0;   // Red
-                        pixels[index + 3] = 255; // Alpha
+                        pixels[index] = color[2];           // B
+                        pixels[index + 1] = color[1];    // G
+                        pixels[index + 2] = color[0];    // R
+                        pixels[index + 3] = 255;           // A
                     }
                 }
             }
+            #endregion
 
+
+            #region x축 16픽셀 간격 눈금 (총 16개)
+            int xTickCount = 16;
+            for (int i = 0; i < xTickCount; i++)
+            {
+                int x = (int)(i * (histW / (double)xTickCount));
+                for (int j = histH - 15; j < histH - 10; j++)
+                {
+                    for (int dx = 0; dx < 2; dx++)
+                    {
+                        int idx = j * stride + (x + dx) * 4;
+                        if (idx + 3 < pixels.Length)
+                        {
+                            pixels[idx] = 0;       // Blue
+                            pixels[idx + 1] = 0;   // Green
+                            pixels[idx + 2] = 0;   // Red
+                            pixels[idx + 3] = 255; // Alpha
+                        }
+                    }
+                }
+            }
+            #endregion
+
+            /* txtBox.Text += $"Normalized Max: {histNormalized.Max()}\n";
+             txtBox.Text += $"Normalized Min: {histNormalized.Min()} \n";*/
+
+            #region y축 값 범위 표시 (0%, 25%, 50%, 75%, 100%)
+            double[] yLabels = { 0.0, 0.25, 0.5, 0.75, 1.0 };
+            for (int i = 0; i < yLabels.Length; i++)
+            {
+                int y = histH - (int)(yLabels[i] * histH);
+                for (int j = 0; j < histW; j += 5)
+                {
+                    int idx = y * stride + j * 4;
+                    if (idx + 3 < pixels.Length)
+                    {
+                        pixels[idx] = 0;
+                        pixels[idx + 1] = 0;
+                        pixels[idx + 2] = 0;
+                        pixels[idx + 3] = 255;
+                    }
+                }
+            }
+            #endregion
 
             histBitmap.WritePixels(new Int32Rect(0, 0, histW, histH), pixels, stride, 0);
-
             ChildWindow child = new ChildWindow();
             child.SetImage(histBitmap);
             child.Owner = this;
             child.Show();
         }
-        #endregion
+        #endregion Histogram
 
 
 
-        private void btnLUT_Click(object sender, RoutedEventArgs e)
+        /*private void btnLUT_Click(object sender, RoutedEventArgs e)
         {
             if (buffer8 == null || histogram == null)
             {
@@ -257,7 +317,7 @@ namespace wpfEx01
             child.SetImage(lutBitmap);
             child.Owner = this;
             child.Show();
-        }
+        }*/
 
         private void btnExit_Click(object sender, RoutedEventArgs e)
         {
