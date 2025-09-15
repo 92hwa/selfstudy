@@ -213,10 +213,10 @@ namespace wpfEx01
                     for (int k = xStart; k < xEnd; k++)
                     {
                         int index = j * stride + k * 4;
-                        pixels[index] = color[2];           // B
-                        pixels[index + 1] = color[1];    // G
-                        pixels[index + 2] = color[0];    // R
-                        pixels[index + 3] = 255;           // A
+                        pixels[index] = color[2]; // B
+                        pixels[index + 1] = color[1]; // G
+                        pixels[index + 2] = color[0]; // R
+                        pixels[index + 3] = 255; // A
                     }
                 }
             }
@@ -235,10 +235,10 @@ namespace wpfEx01
                         int idx = j * stride + (x + dx) * 4;
                         if (idx + 3 < pixels.Length)
                         {
-                            pixels[idx] = 0;       // Blue
-                            pixels[idx + 1] = 0;   // Green
-                            pixels[idx + 2] = 0;   // Red
-                            pixels[idx + 3] = 255; // Alpha
+                            pixels[idx] = 0; // B
+                            pixels[idx + 1] = 0; // G
+                            pixels[idx + 2] = 0; // R
+                            pixels[idx + 3] = 255; // A
                         }
                     }
                 }
@@ -318,6 +318,22 @@ namespace wpfEx01
             child.Owner = this;
             child.Show();
         }*/
+
+
+        private void btnLUTBone_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void btnLUTAL_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void btnLUTMT_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
 
         private void btnExit_Click(object sender, RoutedEventArgs e)
         {
