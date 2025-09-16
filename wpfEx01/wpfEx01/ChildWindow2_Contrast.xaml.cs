@@ -1,9 +1,10 @@
-﻿using System.Text;
+﻿using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-    
+
 namespace wpfEx01
 {
     /// <summary>
@@ -14,7 +15,7 @@ namespace wpfEx01
         private byte[] buffer8;
         private byte[] contrastBuffer;
         private ImageSource originalSrc;
-        
+
         public ChildWindow2_Contrast(ImageSource src, byte[] buffer)
         {
             InitializeComponent();
@@ -31,7 +32,7 @@ namespace wpfEx01
             if (dialog.ShowDialog() == true)
             {
                 double userContrast = dialog.contrastValue;
-                
+
                 for (int i = 0; i < buffer8.Length; i++)
                 {
                     double newValue = buffer8[i] * userContrast;
@@ -55,6 +56,23 @@ namespace wpfEx01
                 wb.WritePixels(new Int32Rect(0, 0, width, height), contrastBuffer, stride, 0);
 
                 imgBox3.Source = wb;
+
+                int[] histogram = new int[256];
+                #region 히스토그램 계산
+                for (int i = 0; i < contrastBuffer.Length; i++)
+                {
+                    histogram[contrastBuffer[i]]++;
+                }
+                #endregion
+
+                ChildWindow1_Histogram childHistogramContrast = new ChildWindow1_Histogram();
+                childHistogramContrast.SetImage(MainWindow.CreateHistogramBitmap(contrastBuffer));
+                childHistogramContrast.Show();
+            }
+
+            else
+            {
+                return;
             }
         }
 
@@ -100,5 +118,9 @@ namespace wpfEx01
         {
             this.Close();
         }
+
+        
+
+
     }
 }

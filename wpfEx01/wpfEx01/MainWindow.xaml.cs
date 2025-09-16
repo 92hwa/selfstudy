@@ -286,5 +286,95 @@ namespace wpfEx01
         {
             this.Close();
         }
+
+        public static WriteableBitmap CreateHistogramBitmap(byte[] buffer)
+        {
+            if (buffer == null || buffer.Length == 0) return null;
+
+            // 1. 히스토그램 계산
+            int[] histogram = new int[256];
+            for (int i = 0; i < buffer.Length; i++)
+                histogram[buffer[i]]++;
+
+            // 2. 히스토그램 그릴 빈 이미지 생성
+            int histW = 500, histH = 400;
+            WriteableBitmap histBitmap = new WriteableBitmap(histW, histH, 96, 96, PixelFormats.Bgr32, null);
+            int strideH = histW * 4;
+            byte[] pixels = new byte[histH * strideH];
+
+            // 배경 흰색
+            for (int i = 0; i < pixels.Length; i++)
+                pixels[i] = 255;
+
+            // 3. 색상 반복 배열 (빨-초-파)
+            byte[][] colors = new byte[3][]
+            {
+        new byte[]{255,0,0}, // R
+        new byte[]{0,255,0}, // G
+        new byte[]{0,0,255}  // B
+            };
+
+            int maxVal = histogram.Max();
+            double binW = (double)histW / histogram.Length;
+
+            for (int i = 0; i < histogram.Length; i++)
+            {
+                int barHeight = (int)((double)histogram[i] / maxVal * histH);
+                int xStart = (int)(i * binW);
+                int xEnd = (int)((i + 1) * binW);
+
+                byte[] color = colors[i % 3];
+
+                for (int y = histH - 1; y >= histH - barHeight; y--)
+                {
+                    for (int x = xStart; x < xEnd; x++)
+                    {
+                        if (x < 0 || x >= histW || y < 0 || y >= histH) continue; // 안전 검사
+                        int idx = y * strideH + x * 4;
+                        pixels[idx] = color[2];     // B
+                        pixels[idx + 1] = color[1]; // G
+                        pixels[idx + 2] = color[0]; // R
+                        pixels[idx + 3] = 255;      // A
+                    }
+                }
+            }
+
+            // 4. X축 눈금 (16개)
+            int xTickCount = 16;
+            for (int i = 0; i < xTickCount; i++)
+            {
+                int x = (int)(i * (histW / (double)xTickCount));
+                for (int y = histH - 15; y < histH - 10; y++)
+                {
+                    for (int dx = 0; dx < 2; dx++)
+                    {
+                        int xx = x + dx;
+                        if (xx >= histW) continue;
+                        int idx = y * strideH + xx * 4;
+                        pixels[idx] = pixels[idx + 1] = pixels[idx + 2] = 0;
+                        pixels[idx + 3] = 255;
+                    }
+                }
+            }
+
+            // 5. Y축 눈금 (0%,25%,50%,75%,100%)
+            double[] yLabels = { 0.0, 0.25, 0.5, 0.75, 1.0 };
+            for (int i = 0; i < yLabels.Length; i++)
+            {
+                int y = histH - (int)(yLabels[i] * histH);
+                for (int x = 0; x < histW; x += 5)
+                {
+                    if (x >= 0 && x < histW && y >= 0 && y < histH)
+                    {
+                        int idx = y * strideH + x * 4;
+                        pixels[idx] = pixels[idx + 1] = pixels[idx + 2] = 0;
+                        pixels[idx + 3] = 255;
+                    }
+                }
+            }
+
+            histBitmap.WritePixels(new Int32Rect(0, 0, histW, histH), pixels, strideH, 0);
+            return histBitmap;
+        }
     }
 }
