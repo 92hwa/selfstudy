@@ -162,11 +162,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="ChildWindow.xaml">
+    <Page Include="ChildWindow1_Histogram.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ChildWindow_Contrast.xaml">
+    <Page Include="ChildWindow2_Contrast.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ChildWindow3_InputDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -178,11 +182,14 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ChildWindow.xaml.cs">
-      <DependentUpon>ChildWindow.xaml</DependentUpon>
+    <Compile Include="ChildWindow1_Histogram.xaml.cs">
+      <DependentUpon>ChildWindow1_Histogram.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ChildWindow_Contrast.xaml.cs">
-      <DependentUpon>ChildWindow_Contrast.xaml</DependentUpon>
+    <Compile Include="ChildWindow2_Contrast.xaml.cs">
+      <DependentUpon>ChildWindow2_Contrast.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ChildWindow3_InputDialog.xaml.cs">
+      <DependentUpon>ChildWindow3_InputDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

@@ -12,6 +12,8 @@ namespace wpfEx01
 
     public partial class MainWindow : System.Windows.Window
     {
+
+        #region 사용할 변수 선언
         OpenFileDialog openFileDialog;
         string selectedFilePath;
         string selectedFileExt;
@@ -22,6 +24,7 @@ namespace wpfEx01
 
         ushort[] buffer16;
         byte[] buffer8;
+        #endregion
 
         public MainWindow()
         {
@@ -133,7 +136,6 @@ namespace wpfEx01
         }
         #endregion
 
-
         #region Histogram
         private void btnHistogramChart_Click(object sender, RoutedEventArgs e)
         {
@@ -153,7 +155,7 @@ namespace wpfEx01
             txtBox.Text += "Histogram Output *** \n";
             txtBox.Text += $"histogram.Max: {histogram.Max()} \n";
             txtBox.Text += $"histogram.Min: {histogram.Min()} \n";
-            #endregion 히스토그램 계산
+            #endregion
 
 
             #region 히스토그램을 그릴 빈 이미지 생성 
@@ -256,20 +258,19 @@ namespace wpfEx01
             #endregion
 
             histBitmap.WritePixels(new Int32Rect(0, 0, histW, histH), pixels, stride, 0);
-            ChildWindow childHistogram = new ChildWindow();
+            ChildWindow1_Histogram childHistogram = new ChildWindow1_Histogram();
             childHistogram.SetImage(histBitmap);
             childHistogram.Owner = this;
             childHistogram.Show();
         }
         #endregion
 
-
         #region Contrast
         private void btnContrast_Click(object sender, RoutedEventArgs e)
         {
-            if(imgBox.Source is BitmapSource bmpSource)
+            if (imgBox.Source != null && buffer8 != null)
             {
-                ChildWindow_Contrast childContrast = new ChildWindow_Contrast(bmpSource);
+                ChildWindow2_Contrast childContrast = new ChildWindow2_Contrast(imgBox.Source, buffer8);
                 childContrast.Owner = this;
                 childContrast.Show();
             }
