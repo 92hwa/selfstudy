@@ -1,9 +1,7 @@
-﻿using System.Linq;
-using System.Text;
+﻿using System.Text;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-
 
 namespace wpfEx01
 {
@@ -29,9 +27,11 @@ namespace wpfEx01
         private void btnContrastUp_Click(object sender, RoutedEventArgs e)
         {
             ChildWindow3_InputDialog dialog = new ChildWindow3_InputDialog();
-            if (dialog.ShowDialog() == true)
+
+            if (dialog.ShowDialog() == false) return;
+            else
             {
-                double userContrast = dialog.contrastValue;
+                double userContrast = dialog.userValue;
 
                 for (int i = 0; i < buffer8.Length; i++)
                 {
@@ -41,12 +41,6 @@ namespace wpfEx01
                     if (newValue < 0) newValue = 0;
 
                     contrastBuffer[i] = (byte)newValue;
-                }
-
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < contrastBuffer.Length; i++)
-                {
-                    sb.Append(contrastBuffer[i] + " ");
                 }
 
                 int width = (int)imgBox3.Source.Width;
@@ -67,11 +61,6 @@ namespace wpfEx01
                 childHistogramContrast.SetImage(MainWindow.CreateHistogramBitmap(contrastBuffer));
                 childHistogramContrast.Show();
             }
-
-            else
-            {
-                return;
-            }
         }
 
         private void btnInitialize_Click(object sender, RoutedEventArgs e)
@@ -82,9 +71,10 @@ namespace wpfEx01
         private void btnContrastDown_Click(object sender, RoutedEventArgs e)
         {
             ChildWindow3_InputDialog dialog = new ChildWindow3_InputDialog();
-            if (dialog.ShowDialog() == true)
+            if (dialog.ShowDialog() == false) return;
+            else
             {
-                double userContrast = dialog.contrastValue;
+                double userContrast = dialog.userValue;
 
                 for (int i = 0; i < buffer8.Length; i++)
                 {

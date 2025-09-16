@@ -19,7 +19,7 @@ namespace wpfEx01
     /// </summary>
     public partial class ChildWindow3_InputDialog : Window
     {
-        public double contrastValue { get; private set; }
+        public double userValue { get; private set; }
 
         public ChildWindow3_InputDialog()
         {
@@ -32,7 +32,7 @@ namespace wpfEx01
 
             if (double.TryParse(txtInputValue.Text, out double val))
             {
-                contrastValue = val;
+                userValue = val;
                 this.DialogResult = true;
             }
             else

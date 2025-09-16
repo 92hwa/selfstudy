@@ -261,13 +261,13 @@ namespace wpfEx01
         {
             if (imgBox.Source != null && buffer8 != null)
             {
-                ChildWindow2_Contrast childContrast = new ChildWindow2_Contrast(imgBox.Source, buffer8);
-                childContrast.Owner = this;
-                childContrast.Show();
+                ChildWindow4_Brightness childBrightness = new ChildWindow4_Brightness(imgBox.Source, buffer8);
+                childBrightness.Owner = this;
+                childBrightness.Show();
             }
             else
             {
-                MessageBox.Show("이미지를 불러온 후에 Contrast 창을 열어주세요.");
+                MessageBox.Show("이미지를 불러온 후에 Brightness 창을 열어주세요.");
             }
         }
 

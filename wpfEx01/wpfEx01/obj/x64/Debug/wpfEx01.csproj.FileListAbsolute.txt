@@ -129,3 +129,5 @@ D:\workspace\selfstudy\wpfEx01\wpfEx01\obj\x64\Debug\ChildWindow2_Contrast.g.cs
 D:\workspace\selfstudy\wpfEx01\wpfEx01\obj\x64\Debug\ChildWindow2_Contrast.baml
 D:\workspace\selfstudy\wpfEx01\wpfEx01\obj\x64\Debug\ChildWindow3_InputDialog.baml
 D:\workspace\selfstudy\wpfEx01\wpfEx01\obj\x64\Debug\ChildWindow3_InputDialog.g.cs
+D:\workspace\selfstudy\wpfEx01\wpfEx01\obj\x64\Debug\ChildWindow4_Brightness.g.cs
+D:\workspace\selfstudy\wpfEx01\wpfEx01\obj\x64\Debug\ChildWindow4_Brightness.baml
