@@ -50,10 +50,10 @@ namespace wpfEx01
                     reader.BaseStream.Seek(128, SeekOrigin.Begin); // Preamble 건너뛰기
                     string dicm = new string(reader.ReadChars(4)); // Prefix 확인
 
-                    while (reader.BaseStream.Position < reader.BaseStream.Length) // DICM 이후 Tag 읽기
+                    while (reader.BaseStream.Position < reader.BaseStream.Length) // DICM 이후
                     {
-                        ushort group = reader.ReadUInt16(); // Tag Group
-                        ushort element = reader.ReadUInt16(); // Tag Element
+                        ushort group = reader.ReadUInt16(); // Tag의 Group Number
+                        ushort element = reader.ReadUInt16(); // Tag의 Element Number
                         string vr = Encoding.ASCII.GetString(reader.ReadBytes(2)); // VR
 
                         int vl = 0;
