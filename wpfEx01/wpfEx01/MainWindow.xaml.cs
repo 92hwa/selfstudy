@@ -13,7 +13,6 @@ namespace wpfEx01
     public partial class MainWindow : System.Windows.Window
     {
 
-        #region 사용할 변수 선언
         OpenFileDialog openFileDialog;
         string selectedFilePath;
         string selectedFileExt;
@@ -24,14 +23,12 @@ namespace wpfEx01
 
         ushort[] buffer16;
         byte[] buffer8;
-        #endregion
 
         public MainWindow()
         {
             InitializeComponent();
         }
 
-        #region Image Load
         private void btnLoad_Click(object sender, RoutedEventArgs e)
         {
             openFileDialog = new OpenFileDialog();
@@ -134,9 +131,7 @@ namespace wpfEx01
 
             txtBox.Text = $"선택한 파일: {selectedFilePath} \n\n";
         }
-        #endregion
 
-        #region Histogram
         private void btnHistogramChart_Click(object sender, RoutedEventArgs e)
         {
             if (wb == null)
@@ -145,8 +140,6 @@ namespace wpfEx01
                 return;
             }
 
-
-            #region 히스토그램 계산
             int[] histogram = new int[256];
             for (int i = 0; i < buffer8.Length; i++)
             {
@@ -155,10 +148,7 @@ namespace wpfEx01
             txtBox.Text += "Histogram Output *** \n";
             txtBox.Text += $"histogram.Max: {histogram.Max()} \n";
             txtBox.Text += $"histogram.Min: {histogram.Min()} \n";
-            #endregion
 
-
-            #region 히스토그램을 그릴 빈 이미지 생성 
             int histW = 500, histH = 400;
             WriteableBitmap histBitmap = new WriteableBitmap(histW, histH, 96, 96, PixelFormats.Bgr32, null);
 
@@ -176,16 +166,8 @@ namespace wpfEx01
             {
                 pixels[i] = 255;
             }
-            #endregion
 
 
-            #region 히스토그램 정규화 (y축 축소를 위한)
-            byte[][] colors = new byte[3][]
-            {
-                new byte[]{ 255, 0, 0 },
-                new byte[]{ 0, 255, 0 },
-                new byte[]{ 0, 0, 255 }
-            };
             int maxVal = histogram.Max();
             double[] histNormalized = new double[histogram.Length];
             double binW = (double)histW / histogram.Length;
@@ -196,24 +178,24 @@ namespace wpfEx01
                 int xEnd = (int)((i + 1) * binW);
                 histNormalized[i] = (double)histogram[i] / maxVal;
 
-                byte[] color = colors[i % 3];
 
                 for (int j = histH - 1; j >= histH - barheight; j--)
                 {
                     for (int k = xStart; k < xEnd; k++)
                     {
-                        int index = j * stride + k * 4;
-                        pixels[index] = color[2]; // B
-                        pixels[index + 1] = color[1]; // G
-                        pixels[index + 2] = color[0]; // R
-                        pixels[index + 3] = 255; // A
+                        if (k < 0 || k >= histW || k < 0 || k >= histH) continue;
+
+                        int idx = j * stride + k * 4;
+
+                        pixels[idx] = 0;              
+                        pixels[idx + 1] = 0;       
+                        pixels[idx + 2] = 0;       
+                        pixels[idx + 3] = 255;
                     }
                 }
             }
-            #endregion
 
 
-            #region x축 16픽셀 간격 눈금 (총 16개)
             int xTickCount = 16;
             for (int i = 0; i < xTickCount; i++)
             {
@@ -233,12 +215,10 @@ namespace wpfEx01
                     }
                 }
             }
-            #endregion
 
             /* txtBox.Text += $"Normalized Max: {histNormalized.Max()}\n";
              txtBox.Text += $"Normalized Min: {histNormalized.Min()} \n";*/
 
-            #region y축 값 범위 표시 (0%, 25%, 50%, 75%, 100%)
             double[] yLabels = { 0.0, 0.25, 0.5, 0.75, 1.0 };
             for (int i = 0; i < yLabels.Length; i++)
             {
@@ -255,7 +235,6 @@ namespace wpfEx01
                     }
                 }
             }
-            #endregion
 
             histBitmap.WritePixels(new Int32Rect(0, 0, histW, histH), pixels, stride, 0);
             ChildWindow1_Histogram childHistogram = new ChildWindow1_Histogram();
@@ -263,9 +242,7 @@ namespace wpfEx01
             childHistogram.Owner = this;
             childHistogram.Show();
         }
-        #endregion
 
-        #region Contrast
         private void btnContrast_Click(object sender, RoutedEventArgs e)
         {
             if (imgBox.Source != null && buffer8 != null)
@@ -279,8 +256,20 @@ namespace wpfEx01
                 MessageBox.Show("이미지를 불러온 후에 Contrast 창을 열어주세요.");
             }
         }
-        #endregion
 
+        private void btnBrightness_Click(object sender, RoutedEventArgs e)
+        {
+            if (imgBox.Source != null && buffer8 != null)
+            {
+                ChildWindow2_Contrast childContrast = new ChildWindow2_Contrast(imgBox.Source, buffer8);
+                childContrast.Owner = this;
+                childContrast.Show();
+            }
+            else
+            {
+                MessageBox.Show("이미지를 불러온 후에 Contrast 창을 열어주세요.");
+            }
+        }
 
         private void btnExit_Click(object sender, RoutedEventArgs e)
         {
@@ -306,14 +295,6 @@ namespace wpfEx01
             for (int i = 0; i < pixels.Length; i++)
                 pixels[i] = 255;
 
-            // 3. 색상 반복 배열 (빨-초-파)
-            byte[][] colors = new byte[3][]
-            {
-        new byte[]{255,0,0}, // R
-        new byte[]{0,255,0}, // G
-        new byte[]{0,0,255}  // B
-            };
-
             int maxVal = histogram.Max();
             double binW = (double)histW / histogram.Length;
 
@@ -323,18 +304,18 @@ namespace wpfEx01
                 int xStart = (int)(i * binW);
                 int xEnd = (int)((i + 1) * binW);
 
-                byte[] color = colors[i % 3];
 
                 for (int y = histH - 1; y >= histH - barHeight; y--)
                 {
                     for (int x = xStart; x < xEnd; x++)
                     {
-                        if (x < 0 || x >= histW || y < 0 || y >= histH) continue; // 안전 검사
+                        if (x < 0 || x >= histW || y < 0 || y >= histH) continue; 
                         int idx = y * strideH + x * 4;
-                        pixels[idx] = color[2];     // B
-                        pixels[idx + 1] = color[1]; // G
-                        pixels[idx + 2] = color[0]; // R
-                        pixels[idx + 3] = 255;      // A
+
+                        pixels[idx] = 0;
+                        pixels[idx + 1] = 0;
+                        pixels[idx + 2] = 0;
+                        pixels[idx + 3] = 255;
                     }
                 }
             }

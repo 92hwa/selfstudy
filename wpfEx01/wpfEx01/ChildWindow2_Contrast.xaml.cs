@@ -58,12 +58,10 @@ namespace wpfEx01
                 imgBox3.Source = wb;
 
                 int[] histogram = new int[256];
-                #region 히스토그램 계산
                 for (int i = 0; i < contrastBuffer.Length; i++)
                 {
                     histogram[contrastBuffer[i]]++;
                 }
-                #endregion
 
                 ChildWindow1_Histogram childHistogramContrast = new ChildWindow1_Histogram();
                 childHistogramContrast.SetImage(MainWindow.CreateHistogramBitmap(contrastBuffer));
@@ -111,6 +109,16 @@ namespace wpfEx01
                 wb.WritePixels(new Int32Rect(0, 0, width, height), contrastBuffer, stride, 0);
 
                 imgBox3.Source = wb;
+
+                int[] histogram = new int[256];
+                for (int i = 0; i < contrastBuffer.Length; i++)
+                {
+                    histogram[contrastBuffer[i]]++;
+                }
+
+                ChildWindow1_Histogram childHistogramContrast = new ChildWindow1_Histogram();
+                childHistogramContrast.SetImage(MainWindow.CreateHistogramBitmap(contrastBuffer));
+                childHistogramContrast.Show();
             }
         }
 
@@ -118,9 +126,5 @@ namespace wpfEx01
         {
             this.Close();
         }
-
-        
-
-
     }
 }
