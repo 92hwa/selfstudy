@@ -56,61 +56,6 @@ namespace wpfEx01
             txtBox.Text = $"선택한 파일: {selectedFilePath} \n\n";
         }
 
-        private void btnLUT_Click(object sender, RoutedEventArgs e)
-        {
-            if (buffer8 == null) return;
-
-            int lutW = 256;
-            int lutH = 256;
-
-            WriteableBitmap lutBitmap = new WriteableBitmap(lutW, lutH, 96, 96, PixelFormats.Bgr32, null);
-
-            int lutStride = lutW * 4;
-            byte[] pixels = new byte[lutH * lutStride];
-
-            for (int i = 0; i < pixels.Length; i++)
-            {
-                pixels[i] = 255;
-            }
-
-            int[] histogram = CalculateHistogram(buffer8);
-
-            // 누적 분포 계산
-            int sumHistogram = histogram.Sum();
-            int[] cdf = new int[256];
-            cdf[0] = histogram[0];
-            for (int i = 1; i < 256; i++)
-            {
-                cdf[i] = cdf[i - 1] + histogram[i];
-            }
-
-            // LUT 만들기 (0 ~ 255 범위로 정규화)
-            byte[] lut = new byte[256];
-            for (int i = 0; i < 256; i++)
-            {
-                lut[i] = (byte)(255.0 * cdf[i] / sumHistogram);
-            }
-
-            // LUT Curve 그리기
-            for (int x = 0; x < 256; x++)
-            {
-                int y = lut[x];
-                int yy = lutH - 1 - y;
-
-                if (yy >= 0 && yy < lutH)
-                {
-                    int idx = yy * lutStride + x * 4;
-                    pixels[idx] = pixels[idx + 1] = pixels[idx + 2] = 0;
-                    pixels[idx + 3] = 255;
-                }
-            }
-            lutBitmap.WritePixels(new Int32Rect(0, 0, lutW, lutH), pixels, lutStride, 0);
-
-            LutDialog lutDialog = new LutDialog();
-            lutDialog.imgBoxLut.Source = lutBitmap;
-            lutDialog.ShowDialog();
-        }
-
         private void btnContrastUp_Click(object sender, RoutedEventArgs e)
         {
             if (buffer8 == null) return;
@@ -197,6 +142,96 @@ namespace wpfEx01
         {
             if (buffer8 == null) return;
             SetImage(buffer8, width, height, imgBoxResult, imgBoxResultHistogram);
+        }
+
+        private void btnLinearLut_Click(object sender, RoutedEventArgs e)
+        {
+            if (buffer8 == null) return;
+
+            // 원본 영상 히스토그램 계산
+            int[] histogram = CalculateHistogram(buffer8);
+
+            // 누적 분포 계산
+            int sumHistogram = histogram.Sum();
+            int[] cdf = new int[256];
+            cdf[0] = histogram[0];
+            for(int i = 1; i < 256; i++)
+            {
+                cdf[i] = cdf[i - 1] + histogram[i];
+            }
+
+            // LUT 생성
+            byte[] lut = new byte[256];
+            for(int i = 0; i < 256; i++)
+            {
+                lut[i] = (byte)(255.0 * cdf[i] / sumHistogram);
+            }
+
+            // LUT 적용 (히스토그램 평활화 결과 영상 생성
+            byte[] resultBuffer = new byte[buffer8.Length];
+            for(int i = 0; i < buffer8.Length; i++)
+            {
+                resultBuffer[i] = lut[buffer8[i]];
+            }
+
+            // LUT 시각화
+            int lutW = 256;
+            int lutH = 256;
+            WriteableBitmap lutBitmap = new WriteableBitmap(lutW, lutH, 96, 96, PixelFormats.Bgr32, null);
+
+            int lutStride = lutW * 4;
+            byte[] pixels = new byte[lutH * lutStride];
+
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                pixels[i] = 255;
+            }
+
+            // LUT 곡선 그리기
+            for (int x = 0; x < 256; x++)
+            {
+                int y = lut[x];
+                int yy = lutH - 1 - y;
+
+                if (yy >= 0 && yy < lutH)
+                {
+                    int idx = yy * lutStride + x * 4;
+                    pixels[idx] = pixels[idx + 1] = pixels[idx + 2] = 0;
+                    pixels[idx + 3] = 255;
+                }
+            }
+            lutBitmap.WritePixels(new Int32Rect(0, 0, lutW, lutH), pixels, lutStride, 0);
+            SetImage(resultBuffer, width, height, imgBoxResult, imgBoxResultHistogram);
+        }
+
+        private void btnNonLinearLut_Click(object sender, RoutedEventArgs e)
+        {
+            if (buffer8 == null) return;
+
+            // 감마 값
+            double gamma = 0.5;
+
+            // LUT 생성
+            byte[] lut = new byte[256];
+            for(int i = 0; i < 256; i++)
+            {
+                double normalized = i / 255.0;
+                lut[i] = (byte)(Math.Pow(normalized, gamma) * 255);
+            }
+
+            // LUT 적용된 결과 버퍼 생성
+            byte[] resultBuffer = new byte[buffer8.Length];
+            for(int i = 0; i < buffer8.Length; i++)
+            {
+                resultBuffer[i] = lut[buffer8[i]];
+            }
+
+            SetImage(resultBuffer, width, height, imgBoxResult, imgBoxResultHistogram);
+        }
+
+        private void btnCdfLut_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("In progress . . .");
         }
 
         private void btnExit_Click(object sender, RoutedEventArgs e)
@@ -306,7 +341,7 @@ namespace wpfEx01
         {
             if (buffer == null || buffer.Length == 0) return null;
 
-            int histW = 500, histH = 400;
+            int histW = 512, histH = 400;
             WriteableBitmap histBitmap = new WriteableBitmap(histW, histH, 96, 96, PixelFormats.Bgr32, null);
 
             int histStride = histW * 4;
@@ -341,18 +376,16 @@ namespace wpfEx01
             }
 
             // x축
-            for (int i = 0; i < 16; i++)
+            for (int i = 0; i <= 16; i++)
             {
-                int x = (int)(i * (histW / 16.0));
-                for (int j = histH - 15; j < histH - 10; j++)
+                int binIndex = i * 16;
+                int x = (int)(binIndex * binW);
+
+                for (int j = histH - 1; j > histH - 10; j--)
                 {
-                    for (int dx = 0; dx < 2; dx++)
+                    if (x >= 0 && x < histW)
                     {
-                        int xx = x + dx;
-
-                        if (xx >= histW) continue;
-
-                        int idx = j * histStride + xx * 4;
+                        int idx = j * histStride + x * 4;
                         pixels[idx] = pixels[idx + 1] = pixels[idx + 2] = 0;
                         pixels[idx + 3] = 255;
                     }
@@ -360,18 +393,17 @@ namespace wpfEx01
             }
 
             // y축
-            double[] yLabels = { 0.0, 0.25, 0.5, 0.75, 1.0 };
-            for (int i = 0; i < yLabels.Length; i++)
+            double[] yRatios = { 0.0, 0.25, 0.5, 0.75, 1.0 };
+            foreach (var ratio in yRatios)
             {
-                int y = histH - (int)(yLabels[i] * histH);
-
-                for (int j = 0; j < histW; j += 5)
+                int y = histH - (int)(ratio * histH);
+                for (int j = 0; j < histW; j++)
                 {
-                    if (y >= 0 && y < histH && j >= 0 && j < histW)  
+                    if (y >= 0 && y < histH)
                     {
-                        int idx = y * histStride + j * 4; 
-                        pixels[idx] = pixels[idx + 1] = pixels[idx + 2] = 0; 
-                        pixels[idx + 3] = 255; 
+                        int idx = y * histStride + j * 4;
+                        pixels[idx] = pixels[idx + 1] = pixels[idx + 2] = 0;
+                        pixels[idx + 3] = 255;
                     }
                 }
             }

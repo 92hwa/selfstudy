@@ -124,6 +124,3 @@ D:\workspace\selfstudy\wpfEx01\wpfEx01\bin\x64\Debug\dll\x64\OpenCvSharpExtern.d
 D:\workspace\selfstudy\wpfEx01\wpfEx01\bin\x64\Debug\dll\x64\opencv_videoio_ffmpeg440_64.dll
 D:\workspace\selfstudy\wpfEx01\wpfEx01\obj\x64\Debug\InputDialog.baml
 D:\workspace\selfstudy\wpfEx01\wpfEx01\obj\x64\Debug\InputDialog.g.cs
-D:\workspace\selfstudy\wpfEx01\wpfEx01\obj\x64\Debug\LutDialog.g.cs
-D:\workspace\selfstudy\wpfEx01\wpfEx01\obj\x64\Debug\wpfEx01_MarkupCompile.lref
-D:\workspace\selfstudy\wpfEx01\wpfEx01\obj\x64\Debug\LutDialog.baml
