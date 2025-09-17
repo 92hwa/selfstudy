@@ -13,12 +13,9 @@ namespace wpfEx01
     public partial class MainWindow : System.Windows.Window
     {
         OpenFileDialog openFileDialog;
-        string selectedFilePath;
-        string selectedFileExt;
 
-        int width;
-        int height;
-
+        string selectedFilePath, selectedFileExt;
+        int width, height;
         ushort[] buffer16;
         byte[] buffer8;
 
@@ -27,6 +24,7 @@ namespace wpfEx01
             InitializeComponent();
         }
 
+        #region Load File
         private void btnLoad_Click(object sender, RoutedEventArgs e)
         {
             openFileDialog = new OpenFileDialog
@@ -55,191 +53,6 @@ namespace wpfEx01
             SetImage(buffer8, width, height, imgBoxOriginal, imgBoxOriginalHistogram);
             txtBox.Text = $"선택한 파일: {selectedFilePath} \n\n";
         }
-
-        private void btnContrastUp_Click(object sender, RoutedEventArgs e)
-        {
-            if (buffer8 == null) return;
-            InputDialog dialog = new InputDialog();
-
-            if (dialog.ShowDialog() == false) return;
-            double userContrast = dialog.userValue;
-
-            byte[] contrastBuffer = new byte[buffer8.Length];
-            for (int i = 0; i < buffer8.Length; i++)
-            {
-                double newValue = buffer8[i] * userContrast;
-                if (newValue > 255) newValue = 255;
-                if (newValue < 0) newValue = 0;
-                contrastBuffer[i] = (byte)newValue;
-            }
-            SetImage(contrastBuffer, width, height, imgBoxResult, imgBoxResultHistogram);
-        }
-
-        private void btnContrastDown_Click(object sender, RoutedEventArgs e)
-        {
-            if (buffer8 == null) return;
-            InputDialog dialog = new InputDialog();
-
-            if (dialog.ShowDialog() == false) return;
-            double userContrast = dialog.userValue;
-
-            byte[] contrastBuffer = new byte[buffer8.Length];
-            for (int i = 0; i < buffer8.Length; i++)
-            {
-                double newValue = buffer8[i] / userContrast;
-                if (newValue > 255) newValue = 255;
-                if (newValue < 0) newValue = 0;
-                contrastBuffer[i] = (byte)newValue;
-            }
-            SetImage(contrastBuffer, width, height, imgBoxResult, imgBoxResultHistogram);
-        }
-
-        private void btnContrastInitialize_Click(object sender, RoutedEventArgs e)
-        {
-            if (buffer8 == null) return;
-            SetImage(buffer8, width, height, imgBoxResult, imgBoxResultHistogram);
-        }
-
-        private void btnBrightnessUp_Click(object sender, RoutedEventArgs e)
-        {
-            if (buffer8 == null) return;
-            InputDialog dialog = new InputDialog();
-
-            if (dialog.ShowDialog() == false) return;
-            double userBrightness = dialog.userValue;
-
-            byte[] contrastBuffer = new byte[buffer8.Length];
-            for (int i = 0; i < buffer8.Length; i++)
-            {
-                double newValue = buffer8[i] + userBrightness;
-                if (newValue > 255) newValue = 255;
-                if (newValue < 0) newValue = 0;
-                contrastBuffer[i] = (byte)newValue;
-            }
-            SetImage(contrastBuffer, width, height, imgBoxResult, imgBoxResultHistogram);
-        }
-
-        private void btnBrightnessDown_Click(object sender, RoutedEventArgs e)
-        {
-            if (buffer8 == null) return;
-            InputDialog dialog = new InputDialog();
-
-            if (dialog.ShowDialog() == false) return;
-            double userBrightness = dialog.userValue;
-
-            byte[] contrastBuffer = new byte[buffer8.Length];
-            for (int i = 0; i < buffer8.Length; i++)
-            {
-                double newValue = buffer8[i] - userBrightness;
-                if (newValue > 255) newValue = 255;
-                if (newValue < 0) newValue = 0;
-                contrastBuffer[i] = (byte)newValue;
-            }
-            SetImage(contrastBuffer, width, height, imgBoxResult, imgBoxResultHistogram);
-        }
-
-        private void btnBrightnessInitialize_Click(object sender, RoutedEventArgs e)
-        {
-            if (buffer8 == null) return;
-            SetImage(buffer8, width, height, imgBoxResult, imgBoxResultHistogram);
-        }
-
-        private void btnLinearLut_Click(object sender, RoutedEventArgs e)
-        {
-            if (buffer8 == null) return;
-
-            // 원본 영상 히스토그램 계산
-            int[] histogram = CalculateHistogram(buffer8);
-
-            // 누적 분포 계산
-            int sumHistogram = histogram.Sum();
-            int[] cdf = new int[256];
-            cdf[0] = histogram[0];
-            for(int i = 1; i < 256; i++)
-            {
-                cdf[i] = cdf[i - 1] + histogram[i];
-            }
-
-            // LUT 생성
-            byte[] lut = new byte[256];
-            for(int i = 0; i < 256; i++)
-            {
-                lut[i] = (byte)(255.0 * cdf[i] / sumHistogram);
-            }
-
-            // LUT 적용 (히스토그램 평활화 결과 영상 생성
-            byte[] resultBuffer = new byte[buffer8.Length];
-            for(int i = 0; i < buffer8.Length; i++)
-            {
-                resultBuffer[i] = lut[buffer8[i]];
-            }
-
-            // LUT 시각화
-            int lutW = 256;
-            int lutH = 256;
-            WriteableBitmap lutBitmap = new WriteableBitmap(lutW, lutH, 96, 96, PixelFormats.Bgr32, null);
-
-            int lutStride = lutW * 4;
-            byte[] pixels = new byte[lutH * lutStride];
-
-            for (int i = 0; i < pixels.Length; i++)
-            {
-                pixels[i] = 255;
-            }
-
-            // LUT 곡선 그리기
-            for (int x = 0; x < 256; x++)
-            {
-                int y = lut[x];
-                int yy = lutH - 1 - y;
-
-                if (yy >= 0 && yy < lutH)
-                {
-                    int idx = yy * lutStride + x * 4;
-                    pixels[idx] = pixels[idx + 1] = pixels[idx + 2] = 0;
-                    pixels[idx + 3] = 255;
-                }
-            }
-            lutBitmap.WritePixels(new Int32Rect(0, 0, lutW, lutH), pixels, lutStride, 0);
-            SetImage(resultBuffer, width, height, imgBoxResult, imgBoxResultHistogram);
-        }
-
-        private void btnNonLinearLut_Click(object sender, RoutedEventArgs e)
-        {
-            if (buffer8 == null) return;
-
-            // 감마 값
-            double gamma = 0.5;
-
-            // LUT 생성
-            byte[] lut = new byte[256];
-            for(int i = 0; i < 256; i++)
-            {
-                double normalized = i / 255.0;
-                lut[i] = (byte)(Math.Pow(normalized, gamma) * 255);
-            }
-
-            // LUT 적용된 결과 버퍼 생성
-            byte[] resultBuffer = new byte[buffer8.Length];
-            for(int i = 0; i < buffer8.Length; i++)
-            {
-                resultBuffer[i] = lut[buffer8[i]];
-            }
-
-            SetImage(resultBuffer, width, height, imgBoxResult, imgBoxResultHistogram);
-        }
-
-        private void btnCdfLut_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("In progress . . .");
-        }
-
-        private void btnExit_Click(object sender, RoutedEventArgs e)
-        {
-            this.Close();
-        }
-
-        #region Load File
         private void LoadDICOM(BinaryReader reader)
         {
             byte[] pixelData = null;
@@ -274,7 +87,6 @@ namespace wpfEx01
             }
             buffer8 = ConvertTo8Bit(pixelData, width, height);
         }
-
         private void LoadRAW(BinaryReader reader)
         {
             width = 3072;
@@ -292,37 +104,215 @@ namespace wpfEx01
                 buffer8[i] = (byte)(buffer16[i] >> 8);
             }
         }
+        #endregion
 
-        private byte[] ConvertTo8Bit(byte[] pixelData, int width, int height)
+
+        #region Contrast
+        private void btnContrastUp_Click(object sender, RoutedEventArgs e)
         {
-            byte[] buffer = new byte[width * height];
-            for (int i = 0; i < buffer.Length; i++)
+            if (buffer8 == null) return;
+            InputDialog dialog = new InputDialog();
+
+            if (dialog.ShowDialog() == false) return;
+            double userContrast = dialog.userValue;
+
+            byte[] contrastBuffer = new byte[buffer8.Length];
+            for (int i = 0; i < buffer8.Length; i++)
             {
-                if (i * 2 + 1 < pixelData.Length)
+                double newValue = buffer8[i] * userContrast;
+                if (newValue > 255) newValue = 255;
+                if (newValue < 0) newValue = 0;
+                contrastBuffer[i] = (byte)newValue;
+            }
+            SetImage(contrastBuffer, width, height, imgBoxResult, imgBoxResultHistogram);
+        }
+        private void btnContrastDown_Click(object sender, RoutedEventArgs e)
+        {
+            if (buffer8 == null) return;
+            InputDialog dialog = new InputDialog();
+
+            if (dialog.ShowDialog() == false) return;
+            double userContrast = dialog.userValue;
+
+            byte[] contrastBuffer = new byte[buffer8.Length];
+            for (int i = 0; i < buffer8.Length; i++)
+            {
+                double newValue = buffer8[i] / userContrast;
+                if (newValue > 255) newValue = 255;
+                if (newValue < 0) newValue = 0;
+                contrastBuffer[i] = (byte)newValue;
+            }
+            SetImage(contrastBuffer, width, height, imgBoxResult, imgBoxResultHistogram);
+        }
+        private void btnContrastInitialize_Click(object sender, RoutedEventArgs e)
+        {
+            if (buffer8 == null) return;
+            SetImage(buffer8, width, height, imgBoxResult, imgBoxResultHistogram);
+        }
+        #endregion
+
+
+        #region Brightness
+        private void btnBrightnessUp_Click(object sender, RoutedEventArgs e)
+        {
+            if (buffer8 == null) return;
+            InputDialog dialog = new InputDialog();
+
+            if (dialog.ShowDialog() == false) return;
+            double userBrightness = dialog.userValue;
+
+            byte[] contrastBuffer = new byte[buffer8.Length];
+            for (int i = 0; i < buffer8.Length; i++)
+            {
+                double newValue = buffer8[i] + userBrightness;
+                if (newValue > 255) newValue = 255;
+                if (newValue < 0) newValue = 0;
+                contrastBuffer[i] = (byte)newValue;
+            }
+            SetImage(contrastBuffer, width, height, imgBoxResult, imgBoxResultHistogram);
+        }
+        private void btnBrightnessDown_Click(object sender, RoutedEventArgs e)
+        {
+            if (buffer8 == null) return;
+            InputDialog dialog = new InputDialog();
+
+            if (dialog.ShowDialog() == false) return;
+            double userBrightness = dialog.userValue;
+
+            byte[] contrastBuffer = new byte[buffer8.Length];
+            for (int i = 0; i < buffer8.Length; i++)
+            {
+                double newValue = buffer8[i] - userBrightness;
+                if (newValue > 255) newValue = 255;
+                if (newValue < 0) newValue = 0;
+                contrastBuffer[i] = (byte)newValue;
+            }
+            SetImage(contrastBuffer, width, height, imgBoxResult, imgBoxResultHistogram);
+        }
+        private void btnBrightnessInitialize_Click(object sender, RoutedEventArgs e)
+        {
+            if (buffer8 == null) return;
+            SetImage(buffer8, width, height, imgBoxResult, imgBoxResultHistogram);
+        }
+        #endregion
+
+
+        #region LUT
+        private void btnLinearLut_Click(object sender, RoutedEventArgs e)
+        {
+            if (buffer8 == null) return;
+
+            // 원본 영상 히스토그램 계산
+            int[] histogram = CalculateHistogram(buffer8);
+
+            // 누적 분포 계산
+            int sumHistogram = histogram.Sum();
+            int[] cdf = new int[256];
+            cdf[0] = histogram[0];
+            for (int i = 1; i < 256; i++)
+            {
+                cdf[i] = cdf[i - 1] + histogram[i];
+            }
+
+            // LUT 생성
+            byte[] lut = new byte[256];
+            for (int i = 0; i < 256; i++)
+            {
+                lut[i] = (byte)(255.0 * cdf[i] / sumHistogram);
+            }
+
+            // LUT 적용 (히스토그램 평활화 결과 영상 생성)
+            byte[] resultBuffer = new byte[buffer8.Length];
+            for (int i = 0; i < buffer8.Length; i++)
+            {
+                resultBuffer[i] = lut[buffer8[i]];
+            }
+
+            // LUT 시각화
+            int lutW = 256;
+            int lutH = 256;
+            WriteableBitmap lutBitmap = new WriteableBitmap(lutW, lutH, 96, 96, PixelFormats.Bgr32, null);
+
+            int lutStride = lutW * 4;
+            byte[] pixels = new byte[lutH * lutStride];
+
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                pixels[i] = 255;
+            }
+
+            // LUT 곡선 그리기
+            for (int x = 0; x < 256; x++)
+            {
+                int y = lut[x];
+                int yy = lutH - 1 - y;
+
+                if (yy >= 0 && yy < lutH)
                 {
-                    ushort value16 = (ushort)(pixelData[i * 2] | (pixelData[i * 2 + 1] << 8));
-                    buffer[i] = (byte)(value16 >> 8);
+                    int idx = yy * lutStride + x * 4;
+                    pixels[idx] = pixels[idx + 1] = pixels[idx + 2] = 0;
+                    pixels[idx + 3] = 255;
                 }
             }
-            return buffer;
+            lutBitmap.WritePixels(new Int32Rect(0, 0, lutW, lutH), pixels, lutStride, 0);
+            SetImage(resultBuffer, width, height, imgBoxResult, imgBoxResultHistogram);
         }
-        #endregion
-
-
-        #region Preview Image
-        private void SetImage(byte[] buffer, int width, int height, Image imageControl, Image histControl)
+        private void btnNonLinearLut_Click(object sender, RoutedEventArgs e)
         {
-            WriteableBitmap wbLocal = new WriteableBitmap(width, height, 96, 96, PixelFormats.Gray8, null);
-            wbLocal.WritePixels(new Int32Rect(0, 0, width, height), buffer, width, 0);
-            imageControl.Source = wbLocal;
+            if (buffer8 == null) return;
 
-            WriteableBitmap histBitmap = DrawHistogram(buffer);
-            histControl.Source = histBitmap;
+            // 감마 값
+            double gamma = 0.5;
+
+            // LUT 생성
+            byte[] lut = new byte[256];
+            for (int i = 0; i < 256; i++)
+            {
+                double normalized = i / 255.0;
+                lut[i] = (byte)(Math.Pow(normalized, gamma) * 255);
+            }
+
+            // LUT 적용된 결과 버퍼 생성
+            byte[] resultBuffer = new byte[buffer8.Length];
+            for (int i = 0; i < buffer8.Length; i++)
+            {
+                resultBuffer[i] = lut[buffer8[i]];
+            }
+
+            SetImage(resultBuffer, width, height, imgBoxResult, imgBoxResultHistogram);
+        }
+        private void btnCdfLut_Click(object sender, RoutedEventArgs e)
+        {
+            if (buffer8 == null) return;
+
+            int[] histogram = CalculateHistogram(buffer8);
+
+            int sumHistogram = histogram.Sum();
+            int[] cdf = new int[256];
+            cdf[0] = histogram[0];
+            for (int i = 1; i < 256; i++)
+            {
+                cdf[i] = cdf[i - 1] + histogram[i];
+            }
+
+            byte[] lut = new byte[256];
+            for (int i = 0; i < 256; i++)
+            {
+                lut[i] = (byte)(255.0 * cdf[i] / sumHistogram);
+            }
+
+            byte[] resultBuffer = new byte[buffer8.Length];
+            for (int i = 0; i < buffer8.Length; i++)
+            {
+                resultBuffer[i] = lut[buffer8[i]];
+            }
+
+            SetImage(resultBuffer, width, height, imgBoxResult, imgBoxResultHistogram);
         }
         #endregion
 
 
-        #region Calculate Histogram
+        #region Histogram
         private static int[] CalculateHistogram(byte[] buffer)
         {
             int[] histogram = new int[256];
@@ -333,10 +323,6 @@ namespace wpfEx01
             }
             return histogram;
         }
-        #endregion
-
-
-        #region Draw Histogram
         public static WriteableBitmap DrawHistogram(byte[] buffer)
         {
             if (buffer == null || buffer.Length == 0) return null;
@@ -367,7 +353,7 @@ namespace wpfEx01
                 {
                     for (int k = xStart; k < xEnd; k++)
                     {
-                        if (k < 0 || k >= histW || j < 0 || j >= histH) continue; 
+                        if (k < 0 || k >= histW || j < 0 || j >= histH) continue;
                         int idx = j * histStride + k * 4;
                         pixels[idx] = pixels[idx + 1] = pixels[idx + 2] = 0;
                         pixels[idx + 3] = 255;
@@ -410,6 +396,42 @@ namespace wpfEx01
             histBitmap.WritePixels(new Int32Rect(0, 0, histW, histH), pixels, histStride, 0);
             return histBitmap;
         }
+        #endregion
+
+
+        #region 
+        private byte[] ConvertTo8Bit(byte[] pixelData, int width, int height)
+        {
+            byte[] buffer = new byte[width * height];
+            for (int i = 0; i < buffer.Length; i++)
+            {
+                if (i * 2 + 1 < pixelData.Length)
+                {
+                    ushort value16 = (ushort)(pixelData[i * 2] | (pixelData[i * 2 + 1] << 8));
+                    buffer[i] = (byte)(value16 >> 8);
+                }
+            }
+            return buffer;
+        }
+        private void SetImage(byte[] buffer, int width, int height, Image imageControl, Image histControl)
+        {
+            WriteableBitmap wbLocal = new WriteableBitmap(width, height, 96, 96, PixelFormats.Gray8, null);
+            wbLocal.WritePixels(new Int32Rect(0, 0, width, height), buffer, width, 0);
+            imageControl.Source = wbLocal;
+
+            WriteableBitmap histBitmap = DrawHistogram(buffer);
+            histControl.Source = histBitmap;
+        }
+        #endregion
+
+        private void btnExit_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
+        
+
+
+       
     }
-    #endregion
 }
