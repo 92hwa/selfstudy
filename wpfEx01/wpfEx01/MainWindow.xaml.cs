@@ -15,7 +15,6 @@ namespace wpfEx01
         OpenFileDialog openFileDialog;
         string selectedFilePath;
         string selectedFileExt;
-        WriteableBitmap wb;
 
         int width;
         int height;
@@ -56,9 +55,60 @@ namespace wpfEx01
             SetImage(buffer8, width, height, imgBoxOriginal, imgBoxOriginalHistogram);
             txtBox.Text = $"선택한 파일: {selectedFilePath} \n\n";
         }
+
         private void btnLUT_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("In progress ... ");
+            if (buffer8 == null) return;
+
+            int lutW = 256;
+            int lutH = 256;
+
+            WriteableBitmap lutBitmap = new WriteableBitmap(lutW, lutH, 96, 96, PixelFormats.Bgr32, null);
+
+            int lutStride = lutW * 4;
+            byte[] pixels = new byte[lutH * lutStride];
+
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                pixels[i] = 255;
+            }
+
+            int[] histogram = CalculateHistogram(buffer8);
+
+            // 누적 분포 계산
+            int sumHistogram = histogram.Sum();
+            int[] cdf = new int[256];
+            cdf[0] = histogram[0];
+            for (int i = 1; i < 256; i++)
+            {
+                cdf[i] = cdf[i - 1] + histogram[i];
+            }
+
+            // LUT 만들기 (0 ~ 255 범위로 정규화)
+            byte[] lut = new byte[256];
+            for (int i = 0; i < 256; i++)
+            {
+                lut[i] = (byte)(255.0 * cdf[i] / sumHistogram);
+            }
+
+            // LUT Curve 그리기
+            for (int x = 0; x < 256; x++)
+            {
+                int y = lut[x];
+                int yy = lutH - 1 - y;
+
+                if (yy >= 0 && yy < lutH)
+                {
+                    int idx = yy * lutStride + x * 4;
+                    pixels[idx] = pixels[idx + 1] = pixels[idx + 2] = 0;
+                    pixels[idx + 3] = 255;
+                }
+            }
+            lutBitmap.WritePixels(new Int32Rect(0, 0, lutW, lutH), pixels, lutStride, 0);
+
+            LutDialog lutDialog = new LutDialog();
+            lutDialog.imgBoxLut.Source = lutBitmap;
+            lutDialog.ShowDialog();
         }
 
         private void btnContrastUp_Click(object sender, RoutedEventArgs e)
@@ -79,7 +129,6 @@ namespace wpfEx01
             }
             SetImage(contrastBuffer, width, height, imgBoxResult, imgBoxResultHistogram);
         }
-
 
         private void btnContrastDown_Click(object sender, RoutedEventArgs e)
         {
@@ -195,8 +244,8 @@ namespace wpfEx01
         {
             width = 3072;
             height = 3072;
-            buffer16 = new ushort[width * height];
 
+            buffer16 = new ushort[width * height];
             for (int i = 0; i < buffer16.Length; i++)
             {
                 buffer16[i] = reader.ReadUInt16();
@@ -238,6 +287,20 @@ namespace wpfEx01
         #endregion
 
 
+        #region Calculate Histogram
+        private static int[] CalculateHistogram(byte[] buffer)
+        {
+            int[] histogram = new int[256];
+            if (buffer == null || buffer.Length == 0) return histogram;
+            foreach (var b in buffer)
+            {
+                histogram[b]++;
+            }
+            return histogram;
+        }
+        #endregion
+
+
         #region Draw Histogram
         public static WriteableBitmap DrawHistogram(byte[] buffer)
         {
@@ -254,8 +317,7 @@ namespace wpfEx01
                 pixels[i] = 255;
             }
 
-            int[] histogram = new int[256];
-            foreach (var b in buffer) histogram[b]++;
+            int[] histogram = CalculateHistogram(buffer);
             int maxVal = histogram.Max();
             double binW = (double)histW / histogram.Length;
 
@@ -277,7 +339,6 @@ namespace wpfEx01
                     }
                 }
             }
-
 
             // x축
             for (int i = 0; i < 16; i++)
@@ -314,7 +375,6 @@ namespace wpfEx01
                     }
                 }
             }
-
             histBitmap.WritePixels(new Int32Rect(0, 0, histW, histH), pixels, histStride, 0);
             return histBitmap;
         }

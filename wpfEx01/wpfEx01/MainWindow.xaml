@@ -11,9 +11,8 @@
                      FontWeight="Normal" Margin="5"/>
         </GroupBox>
 
-        <StackPanel DockPanel.Dock="Right" Width="180" Margin="10,0,0,-150" RenderTransformOrigin="0.489,0.559">
+        <StackPanel DockPanel.Dock="Right" Width="180" Margin="10,10,0,-150" RenderTransformOrigin="0.489,0.559">
             <Button Name="btnLoad" Content="Load" Height="35" Margin="0,5" Click="btnLoad_Click"/>
-            <Button Name="btnLUT" Content="LUT Curve" Height="35" Margin="0,5" Click="btnLUT_Click"/>
 
             <GroupBox Header="Contrast" Margin="0,20,0,0">
                 <StackPanel>
@@ -31,9 +30,8 @@
                 </StackPanel>
             </GroupBox>
 
-            <Grid VerticalAlignment="Stretch">
-                <Button Name="btnExit" Content="Exit" Height="34" VerticalAlignment="Bottom" Click="btnExit_Click" Margin="0,0,0,-329"/>
-            </Grid>
+            <Button Name="btnLUT" Content="LUT Curve" Height="35" Margin="0,15" Click="btnLUT_Click"/>
+            <Button Name="btnExit" Content="Exit" Height="35" Margin="0,5" Click="btnExit_Click"/>
         </StackPanel>
 
         <Grid>
