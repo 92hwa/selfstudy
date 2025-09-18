@@ -24,21 +24,21 @@
 
             <GroupBox Header="Brightness" Margin="0,20,0,0">
                 <StackPanel>
-                    <Button Name="btnBrightnessUp" Content="Increase Brightness" Height="30" Margin="5" Click="btnBrightnessUp_Click"/>
-                    <Button Name="btnBrightnessDown" Content="Decrease Brightness" Height="30" Margin="5" Click="btnBrightnessDown_Click"/>
-                    <Button Name="btnBrightnessInitialize" Content="Initialize" Height="30" Margin="5" Click="btnBrightnessInitialize_Click" />
+                    <Button Name="btnBrightUp" Content="Increase Brightness" Height="30" Margin="5" Click="btnBrightUp_Click"/>
+                    <Button Name="btnBrightDown" Content="Decrease Brightness" Height="30" Margin="5" Click="btnBrightDown_Click"/>
+                    <Button Name="btnBrightInitialize" Content="Initialize" Height="30" Margin="5" Click="btnBrightInitialize_Click" />
                 </StackPanel>
             </GroupBox>
 
             <GroupBox Header="LUT" Margin="0,20,0,0">
                 <StackPanel>
-                    <Button Name="btnLinearLut" Content="Linear LUT" Height="30" Margin="5" Click="btnLinearLut_Click" />
-                    <Button Name="btnNonLinearLut" Content="Non-Linear LUT" Height="30" Margin="5" Click="btnNonLinearLut_Click" />
-                    <Button Name="btnCdfLut" Content="CDF LUT" Height="30" Margin="5" Click="btnCdfLut_Click" />
+                    <Button Name="btnLinearLut" Content="Linear LUT" Height="30" Margin="5" Click="btnLut_Click" />
+                    <Button Name="btnNonLinearLut" Content="Non-Linear LUT" Height="30" Margin="5" />
+                    <Button Name="btnCdfLut" Content="CDF LUT" Height="30" Margin="5" />
                 </StackPanel>
             </GroupBox>
 
-            <Button Name="btnExit" Content="Exit" Height="35" Margin="0,30" Click="btnExit_Click"/>
+            <Button Name="btnExit" Content="Exit" Height="35" Margin="0,150" Click="btnExit_Click"/>
         </StackPanel>
 
         <Grid>

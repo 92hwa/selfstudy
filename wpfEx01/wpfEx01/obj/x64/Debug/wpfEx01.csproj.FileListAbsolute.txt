@@ -122,5 +122,3 @@ D:\workspace\selfstudy\wpfEx01\wpfEx01\bin\x64\Debug\dll\x86\OpenCvSharpExtern.d
 D:\workspace\selfstudy\wpfEx01\wpfEx01\bin\x64\Debug\dll\x86\opencv_videoio_ffmpeg440.dll
 D:\workspace\selfstudy\wpfEx01\wpfEx01\bin\x64\Debug\dll\x64\OpenCvSharpExtern.dll
 D:\workspace\selfstudy\wpfEx01\wpfEx01\bin\x64\Debug\dll\x64\opencv_videoio_ffmpeg440_64.dll
-D:\workspace\selfstudy\wpfEx01\wpfEx01\obj\x64\Debug\InputDialog.baml
-D:\workspace\selfstudy\wpfEx01\wpfEx01\obj\x64\Debug\InputDialog.g.cs
