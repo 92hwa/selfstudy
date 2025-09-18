@@ -427,7 +427,6 @@ namespace wpfEx01
             histBitmap.WritePixels(new Int32Rect(0, 0, histW, histH), pixels, histStride, 0);
             return histBitmap;
         }
-
         #endregion
 
 

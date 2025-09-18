@@ -32,13 +32,11 @@
 
             <GroupBox Header="LUT" Margin="0,20,0,0">
                 <StackPanel>
-                    <Button Name="btnLinearLut" Content="Linear LUT" Height="30" Margin="5" Click="btnLut_Click" />
-                    <Button Name="btnNonLinearLut" Content="Non-Linear LUT" Height="30" Margin="5" />
-                    <Button Name="btnCdfLut" Content="CDF LUT" Height="30" Margin="5" />
+                    <Button Name="btnLut" Content="LUT Curve" Height="30" Margin="5" Click="btnLut_Click" />
                 </StackPanel>
             </GroupBox>
 
-            <Button Name="btnExit" Content="Exit" Height="35" Margin="0,150" Click="btnExit_Click"/>
+            <Button Name="btnExit" Content="Exit" Height="35" Margin="0,170" Click="btnExit_Click"/>
         </StackPanel>
 
         <Grid>
