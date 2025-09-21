@@ -32,7 +32,7 @@
 
             <GroupBox Header="LUT" Margin="0,20,0,0">
                 <StackPanel>
-                    <Button Name="btnLut" Content="LUT Curve" Height="30" Margin="5" Click="btnLut_Click" />
+                    <Button Name="btnLut" Content="My Curve" Height="30" Margin="5" Click="btnLut_Click" />
                 </StackPanel>
             </GroupBox>
 

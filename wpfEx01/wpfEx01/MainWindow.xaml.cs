@@ -60,6 +60,7 @@ namespace wpfEx01
             }
 
             SetImage(buffer8, width, height, imgBoxOriginal, imgBoxOriginalHistogram);
+            SetImage(buffer8, width, height, imgBoxResult, imgBoxResultHistogram);
             txtBox.Text = $"선택한 파일: {selectedFilePath} \n";
         }
         private void LoadDICOM(BinaryReader reader)
@@ -133,7 +134,7 @@ namespace wpfEx01
             wbLocal.WritePixels(new Int32Rect(0, 0, width, height), buffer, width, 0);
             imageControl.Source = wbLocal;
 
-            WriteableBitmap histBitmap = DrawHist(buffer);
+            WriteableBitmap histBitmap = Draw(buffer);
             histControl.Source = histBitmap;
         }
         #endregion
@@ -251,11 +252,11 @@ namespace wpfEx01
             SetImage(iBuffer, width, height, imgBoxResult, imgBoxResultHistogram);
 
             beta = beta + 10;
-            txtBox.Text += $"현재 Brightness 값: {beta}";
+            txtBox.Text += $"현재 Brightness 값: {beta} \n";
 
             if (beta > 100)
             {
-                MessageBox.Show("더 이상 증가시킬 수 없습니다.");
+                MessageBox.Show("더 이상 증가시킬 수 없습니다. \n");
                 beta = 100;
             }
         }
@@ -280,11 +281,11 @@ namespace wpfEx01
             SetImage(iBuffer, width, height, imgBoxResult, imgBoxResultHistogram);
 
             beta = beta - 10;
-            txtBox.Text += $"현재 Brightness 값: {beta}";
+            txtBox.Text += $"현재 Brightness 값: {beta} \n";
 
             if(beta < 0)
             {
-                MessageBox.Show("더 이상 감소시킬 수 없습니다.");
+                MessageBox.Show("더 이상 감소시킬 수 없습니다. \n");
                 beta = 0;
             }
         }
@@ -317,115 +318,56 @@ namespace wpfEx01
         #region LUT
         private void btnLut_Click(object sender, RoutedEventArgs e)
         {
+            if (buffer8 == null) return;
             if (iBuffer == null)
-            {
                 iBuffer = (byte[])buffer8.Clone();
-            }
 
-            byte[] lut = GetLUT(alpha, beta);
-            byte[] resultBuffer = new byte[iBuffer.Length];
-
-            for (int i = 0; i < iBuffer.Length; i++)
-            {
-                resultBuffer[i] = lut[iBuffer[i]];
-            }
-            imgBoxResultHistogram.Source = Draw(resultBuffer, lut);
-        }
-        private static byte[] GetLUT(double alpha, int beta)
-        {
-            byte[] lutCurve = new byte[256];
-
+            byte[] lutArr = new byte[256];
             for (int i = 0; i < 256; i++)
             {
                 double lutVal = i * alpha + beta;
-
                 if (lutVal > 255) lutVal = 255;
                 if (lutVal < 0) lutVal = 0;
-
-                lutCurve[i] = (byte)lutVal;
+                lutArr[i] = (byte)lutVal;
             }
-            return lutCurve;
+
+            byte[] resultBuffer = new byte[iBuffer.Length];
+            for (int i = 0; i < iBuffer.Length; i++)
+                resultBuffer[i] = lutArr[iBuffer[i]];
+
+            WriteableBitmap wbLut = new WriteableBitmap(width, height, 96, 96, PixelFormats.Gray8, null);
+            wbLut.WritePixels(new Int32Rect(0, 0, width, height), resultBuffer, width, 0);
+            imgBoxResult.Source = wbLut;
+
+            WriteableBitmap histBitmap = Draw(iBuffer, lutArr);
+            imgBoxResultHistogram.Source = histBitmap;
+
+            txtBox.Text += $"적용된 alpha: {alpha:F2}, 적용된 beta: {beta} \n";
         }
-        public static WriteableBitmap Draw(byte[] buffer, byte[] lut = null)
+        private static void DrawLine(byte[] pixels, int stride, int width, int height, int x1, int y1, int x2, int y2, Color color)
         {
-            if (buffer == null || buffer.Length == 0) return null;
+            int dx = Math.Abs(x2 - x1), dy = Math.Abs(y2 - y1);
+            int sx = x1 < x2 ? 1 : -1;
+            int sy = y1 < y2 ? 1 : -1;
+            int err = dx - dy;
 
-            int histW = 512, histH = 400;
-            WriteableBitmap histBitmap = new WriteableBitmap(histW, histH, 96, 96, PixelFormats.Bgr32, null);
-
-            int histStride = histW * 4;
-            byte[] pixels = new byte[histH * histStride];
-
-            for (int i = 0; i < pixels.Length; i++)
-                pixels[i] = 255;
-
-            // 히스토그램 계산
-            int[] histogram = CalculateHistogram(buffer);
-            int maxVal = histogram.Max();
-            double binW = (double)histW / histogram.Length;
-
-            // 히스토그램 그리기 (검정색 막대)
-            for (int i = 0; i < histogram.Length; i++)
+            while (true)
             {
-                int barHeight = (int)((double)histogram[i] / maxVal * histH);
-                int xStart = (int)(i * binW);
-                int xEnd = (int)((i + 1) * binW);
-
-                for (int j = histH - 1; j >= histH - barHeight; j--)
+                if (x1 >= 0 && x1 < width && y1 >= 0 && y1 < height)
                 {
-                    for (int k = xStart; k < xEnd; k++)
-                    {
-                        if (k < 0 || k >= histW || j < 0 || j >= histH) continue;
-                        int idx = j * histStride + k * 4;
-                        pixels[idx] = pixels[idx + 1] = pixels[idx + 2] = 0; // black
-                        pixels[idx + 3] = 255;
-                    }
+                    int idx = y1 * stride + x1 * 4;
+                    pixels[idx] = color.B;
+                    pixels[idx + 1] = color.G;
+                    pixels[idx + 2] = color.R;
+                    pixels[idx + 3] = 255;
                 }
+
+                if (x1 == x2 && y1 == y2) break;
+
+                int e2 = 2 * err;
+                if (e2 > -dy) { err -= dy; x1 += sx; }
+                if (e2 < dx) { err += dx; y1 += sy; }
             }
-
-            // LUT 곡선 오버레이 (빨간색)
-            if (lut != null && lut.Length == 256)
-            {
-                for (int x = 1; x < 256; x++)
-                {
-                    int y1 = lut[x - 1];
-                    int y2 = lut[x];
-
-                    int yy1 = histH - 1 - (int)(y1 * (histH / 256.0));
-                    int yy2 = histH - 1 - (int)(y2 * (histH / 256.0));
-
-                    // Bresenham 선 그리기
-                    int dx = Math.Abs(x - (x - 1));
-                    int dy = Math.Abs(yy2 - yy1);
-                    int sx = (x - 1) < x ? 1 : -1;
-                    int sy = yy1 < yy2 ? 1 : -1;
-                    int err = dx - dy;
-
-                    int cx = x - 1;
-                    int cy = yy1;
-
-                    while (true)
-                    {
-                        int px = (int)(cx * (histW / 256.0)); // LUT X를 histW에 맞게 스케일
-                        if (px >= 0 && px < histW && cy >= 0 && cy < histH)
-                        {
-                            int idx = cy * histStride + px * 4;
-                            pixels[idx] = 0;        // Blue
-                            pixels[idx + 1] = 0;    // Green
-                            pixels[idx + 2] = 255;  // Red (빨강 곡선)
-                            pixels[idx + 3] = 255;
-                        }
-
-                        if (cx == x && cy == yy2) break;
-                        int e2 = 2 * err;
-                        if (e2 > -dy) { err -= dy; cx += sx; }
-                        if (e2 < dx) { err += dx; cy += sy; }
-                    }
-                }
-            }
-
-            histBitmap.WritePixels(new Int32Rect(0, 0, histW, histH), pixels, histStride, 0);
-            return histBitmap;
         }
         #endregion
 
@@ -441,7 +383,7 @@ namespace wpfEx01
             }
             return histogram;
         }
-        public static WriteableBitmap DrawHist(byte[] buffer, byte[] lut = null)
+        public static WriteableBitmap Draw(byte[] buffer, byte[] lut = null)
         {
             if (buffer == null || buffer.Length == 0) return null;
 
@@ -453,9 +395,7 @@ namespace wpfEx01
             byte[] pixels = new byte[histH * histStride];
 
             for (int i = 0; i < pixels.Length; i++)
-            {
                 pixels[i] = 255;
-            }
 
             // 히스토그램 계산
             int[] histogram = CalculateHistogram(buffer);
@@ -478,6 +418,21 @@ namespace wpfEx01
                         pixels[idx] = pixels[idx + 1] = pixels[idx + 2] = 0;
                         pixels[idx + 3] = 255;
                     }
+                }
+            }
+
+            //LUT 곡선 그리기 
+            if (lut != null)
+            {
+                for (int x = 0; x < 255; x++)
+                {
+                    int x1 = (int)((double)x / 255 * histW);
+                    int y1 = histH - 1 - (int)((double)lut[x] / 255 * histH);
+
+                    int x2 = (int)((double)(x + 1) / 255 * histW);
+                    int y2 = histH - 1 - (int)((double)lut[x + 1] / 255 * histH);
+
+                    DrawLine(pixels, histStride, histW, histH, x1, y1, x2, y2, Colors.Red);
                 }
             }
             histBitmap.WritePixels(new Int32Rect(0, 0, histW, histH), pixels, histStride, 0);
