@@ -1,0 +1,15 @@
+/mnt/d/workspace/selfstudy/cs/Ex11/obj/Debug/net8.0/Ex11.GeneratedMSBuildEditorConfig.editorconfig
+/mnt/d/workspace/selfstudy/cs/Ex11/obj/Debug/net8.0/Ex11.AssemblyInfoInputs.cache
+/mnt/d/workspace/selfstudy/cs/Ex11/obj/Debug/net8.0/Ex11.AssemblyInfo.cs
+/mnt/d/workspace/selfstudy/cs/Ex11/obj/Debug/net8.0/Ex11.csproj.CoreCompileInputs.cache
+/mnt/d/workspace/selfstudy/cs/Ex11/obj/Debug/net8.0/Ex11.sourcelink.json
+/mnt/d/workspace/selfstudy/cs/Ex11/bin/Debug/net8.0/Ex11
+/mnt/d/workspace/selfstudy/cs/Ex11/bin/Debug/net8.0/Ex11.deps.json
+/mnt/d/workspace/selfstudy/cs/Ex11/bin/Debug/net8.0/Ex11.runtimeconfig.json
+/mnt/d/workspace/selfstudy/cs/Ex11/bin/Debug/net8.0/Ex11.dll
+/mnt/d/workspace/selfstudy/cs/Ex11/bin/Debug/net8.0/Ex11.pdb
+/mnt/d/workspace/selfstudy/cs/Ex11/obj/Debug/net8.0/Ex11.dll
+/mnt/d/workspace/selfstudy/cs/Ex11/obj/Debug/net8.0/refint/Ex11.dll
+/mnt/d/workspace/selfstudy/cs/Ex11/obj/Debug/net8.0/Ex11.pdb
+/mnt/d/workspace/selfstudy/cs/Ex11/obj/Debug/net8.0/Ex11.genruntimeconfig.cache
+/mnt/d/workspace/selfstudy/cs/Ex11/obj/Debug/net8.0/ref/Ex11.dll

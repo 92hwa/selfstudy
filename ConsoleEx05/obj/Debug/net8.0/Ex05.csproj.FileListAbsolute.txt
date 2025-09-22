@@ -1,0 +1,15 @@
+/mnt/d/workspace/selfstudy/cs/Ex05/bin/Debug/net8.0/Ex05
+/mnt/d/workspace/selfstudy/cs/Ex05/bin/Debug/net8.0/Ex05.deps.json
+/mnt/d/workspace/selfstudy/cs/Ex05/bin/Debug/net8.0/Ex05.runtimeconfig.json
+/mnt/d/workspace/selfstudy/cs/Ex05/bin/Debug/net8.0/Ex05.dll
+/mnt/d/workspace/selfstudy/cs/Ex05/bin/Debug/net8.0/Ex05.pdb
+/mnt/d/workspace/selfstudy/cs/Ex05/obj/Debug/net8.0/Ex05.GeneratedMSBuildEditorConfig.editorconfig
+/mnt/d/workspace/selfstudy/cs/Ex05/obj/Debug/net8.0/Ex05.AssemblyInfoInputs.cache
+/mnt/d/workspace/selfstudy/cs/Ex05/obj/Debug/net8.0/Ex05.AssemblyInfo.cs
+/mnt/d/workspace/selfstudy/cs/Ex05/obj/Debug/net8.0/Ex05.csproj.CoreCompileInputs.cache
+/mnt/d/workspace/selfstudy/cs/Ex05/obj/Debug/net8.0/Ex05.sourcelink.json
+/mnt/d/workspace/selfstudy/cs/Ex05/obj/Debug/net8.0/Ex05.dll
+/mnt/d/workspace/selfstudy/cs/Ex05/obj/Debug/net8.0/refint/Ex05.dll
+/mnt/d/workspace/selfstudy/cs/Ex05/obj/Debug/net8.0/Ex05.pdb
+/mnt/d/workspace/selfstudy/cs/Ex05/obj/Debug/net8.0/Ex05.genruntimeconfig.cache
+/mnt/d/workspace/selfstudy/cs/Ex05/obj/Debug/net8.0/ref/Ex05.dll

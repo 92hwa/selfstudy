@@ -1,0 +1,15 @@
+/mnt/d/workspace/selfstudy/cs/Ex03/obj/Debug/net8.0/Ex03.GeneratedMSBuildEditorConfig.editorconfig
+/mnt/d/workspace/selfstudy/cs/Ex03/obj/Debug/net8.0/Ex03.AssemblyInfoInputs.cache
+/mnt/d/workspace/selfstudy/cs/Ex03/obj/Debug/net8.0/Ex03.AssemblyInfo.cs
+/mnt/d/workspace/selfstudy/cs/Ex03/obj/Debug/net8.0/Ex03.csproj.CoreCompileInputs.cache
+/mnt/d/workspace/selfstudy/cs/Ex03/obj/Debug/net8.0/Ex03.sourcelink.json
+/mnt/d/workspace/selfstudy/cs/Ex03/bin/Debug/net8.0/Ex03
+/mnt/d/workspace/selfstudy/cs/Ex03/bin/Debug/net8.0/Ex03.deps.json
+/mnt/d/workspace/selfstudy/cs/Ex03/bin/Debug/net8.0/Ex03.runtimeconfig.json
+/mnt/d/workspace/selfstudy/cs/Ex03/bin/Debug/net8.0/Ex03.dll
+/mnt/d/workspace/selfstudy/cs/Ex03/bin/Debug/net8.0/Ex03.pdb
+/mnt/d/workspace/selfstudy/cs/Ex03/obj/Debug/net8.0/Ex03.dll
+/mnt/d/workspace/selfstudy/cs/Ex03/obj/Debug/net8.0/refint/Ex03.dll
+/mnt/d/workspace/selfstudy/cs/Ex03/obj/Debug/net8.0/Ex03.pdb
+/mnt/d/workspace/selfstudy/cs/Ex03/obj/Debug/net8.0/Ex03.genruntimeconfig.cache
+/mnt/d/workspace/selfstudy/cs/Ex03/obj/Debug/net8.0/ref/Ex03.dll

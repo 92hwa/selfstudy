@@ -1,0 +1,14 @@
+D:\workspace\selfstudy\rawEx01\rawEx01\bin\x64\Release\rawEx01.exe.config
+D:\workspace\selfstudy\rawEx01\rawEx01\bin\x64\Release\rawEx01.exe
+D:\workspace\selfstudy\rawEx01\rawEx01\bin\x64\Release\rawEx01.pdb
+D:\workspace\selfstudy\rawEx01\rawEx01\obj\x64\Release\MainWindow.g.cs
+D:\workspace\selfstudy\rawEx01\rawEx01\obj\x64\Release\App.g.cs
+D:\workspace\selfstudy\rawEx01\rawEx01\obj\x64\Release\rawEx01_MarkupCompile.cache
+D:\workspace\selfstudy\rawEx01\rawEx01\obj\x64\Release\rawEx01_MarkupCompile.lref
+D:\workspace\selfstudy\rawEx01\rawEx01\obj\x64\Release\MainWindow.baml
+D:\workspace\selfstudy\rawEx01\rawEx01\obj\x64\Release\rawEx01.g.resources
+D:\workspace\selfstudy\rawEx01\rawEx01\obj\x64\Release\rawEx01.Properties.Resources.resources
+D:\workspace\selfstudy\rawEx01\rawEx01\obj\x64\Release\rawEx01.csproj.GenerateResource.cache
+D:\workspace\selfstudy\rawEx01\rawEx01\obj\x64\Release\rawEx01.csproj.CoreCompileInputs.cache
+D:\workspace\selfstudy\rawEx01\rawEx01\obj\x64\Release\rawEx01.exe
+D:\workspace\selfstudy\rawEx01\rawEx01\obj\x64\Release\rawEx01.pdb

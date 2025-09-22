@@ -1,0 +1,15 @@
+/mnt/d/workspace/selfstudy/cs/Ex04/bin/Debug/net8.0/Ex04
+/mnt/d/workspace/selfstudy/cs/Ex04/bin/Debug/net8.0/Ex04.deps.json
+/mnt/d/workspace/selfstudy/cs/Ex04/bin/Debug/net8.0/Ex04.runtimeconfig.json
+/mnt/d/workspace/selfstudy/cs/Ex04/bin/Debug/net8.0/Ex04.dll
+/mnt/d/workspace/selfstudy/cs/Ex04/bin/Debug/net8.0/Ex04.pdb
+/mnt/d/workspace/selfstudy/cs/Ex04/obj/Debug/net8.0/Ex04.GeneratedMSBuildEditorConfig.editorconfig
+/mnt/d/workspace/selfstudy/cs/Ex04/obj/Debug/net8.0/Ex04.AssemblyInfoInputs.cache
+/mnt/d/workspace/selfstudy/cs/Ex04/obj/Debug/net8.0/Ex04.AssemblyInfo.cs
+/mnt/d/workspace/selfstudy/cs/Ex04/obj/Debug/net8.0/Ex04.csproj.CoreCompileInputs.cache
+/mnt/d/workspace/selfstudy/cs/Ex04/obj/Debug/net8.0/Ex04.sourcelink.json
+/mnt/d/workspace/selfstudy/cs/Ex04/obj/Debug/net8.0/Ex04.dll
+/mnt/d/workspace/selfstudy/cs/Ex04/obj/Debug/net8.0/refint/Ex04.dll
+/mnt/d/workspace/selfstudy/cs/Ex04/obj/Debug/net8.0/Ex04.pdb
+/mnt/d/workspace/selfstudy/cs/Ex04/obj/Debug/net8.0/Ex04.genruntimeconfig.cache
+/mnt/d/workspace/selfstudy/cs/Ex04/obj/Debug/net8.0/ref/Ex04.dll
