@@ -150,6 +150,9 @@ namespace wpfEx01
             {
                 buffer8[i] = (byte)(buffer16[i] >> 8);
             }
+
+            windowC = 6225;
+            windowW = 13926;
         }
 
         private byte[] ConvertTo8Bit(byte[] pixelData, int width, int height)
