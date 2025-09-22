@@ -52,7 +52,7 @@ namespace wpfEx01
             selectedFileExt = Path.GetExtension(selectedFilePath);
 
             FileStream fs = new FileStream(selectedFilePath, FileMode.Open, FileAccess.Read); // 파일을 바이너리 모드로 열기
-            BinaryReader reader = new BinaryReader(fs);
+            BinaryReader reader = new BinaryReader(fs); // FileStream에서 텍스트가 아닌 데이터 다루기
 
             if (selectedFileExt == ".dcm")
             {
@@ -71,27 +71,36 @@ namespace wpfEx01
         {
             byte[] pixelData = null;
 
-            reader.BaseStream.Seek(128, SeekOrigin.Begin);
-            string dicm = new string(reader.ReadChars(4));
+            reader.BaseStream.Seek(128, SeekOrigin.Begin); // 128바이트 이동한 지점을 시작점으로 설정
+            string dicm = new string(reader.ReadChars(4)); // 4바이트 읽기
 
-            while (reader.BaseStream.Position < reader.BaseStream.Length)
+            while (reader.BaseStream.Position < reader.BaseStream.Length) 
             {
-                ushort group = reader.ReadUInt16();
-                ushort element = reader.ReadUInt16();
-                string vr = Encoding.ASCII.GetString(reader.ReadBytes(2));
+                ushort group = reader.ReadUInt16();     
+                // DICM 다음부터 2바이트 읽기
+                // reader는 BinaryReader 이므로 Little Endian 기준으로 2바이트를 읽어 ushort 변환
 
+
+                ushort element = reader.ReadUInt16();
+                string vr = Encoding.ASCII.GetString(reader.ReadBytes(2)); 
+                // reader.ReadBytes(2): 현재 스트림 위치에서 2바이트를 읽음
+                // Encoding.ASCII.GetString(...): 읽은 2바이트를 ASCII 문자로 변환
+                // Value Representation에는 DS(Decimal String, 숫자를 문자열로 저장), OB, OW, UI 등이 존재
+                
+
+                // VR에 따라 VL(Value Length)을 2바이트 또는 4바이트로 읽어야함
                 int vl = 0;
-                if (vr == "OB" || vr == "OW" || vr == "SQ" || vr == "UN")
+                if (vr == "OB" || vr == "OW" || vr == "SQ" || vr == "UN") // Explicit 인 경우 4바이트 읽기
                 {
                     reader.ReadUInt16();
                     vl = (int)reader.ReadUInt32();
                 }
-                else
+                else // Implicit 인 경우 2바이트 읽기
                 {
                     vl = reader.ReadUInt16();
                 }
 
-                byte[] valueBytes = reader.ReadBytes(vl);
+                byte[] valueBytes = reader.ReadBytes(vl); // Value Field 읽기
 
                 switch (group)
                 {
@@ -99,14 +108,20 @@ namespace wpfEx01
                         switch (element)
                         {
                             case 0x0010: height = BitConverter.ToUInt16(valueBytes, 0); break;
+                            // valueBytes 는 DICOM에서 읽은 value field 의 바이트 배열
+                            // BitConverter.ToUInt16(...): 바이트 배열에서 2바이트를 꺼내 ushort로 변환
+                            // start index는 0이므로 배열의 첫 번째 바이트부터 읽음
+
                             case 0x0011: width = BitConverter.ToUInt16(valueBytes, 0); break;
                             case 0x1050:
+                                // WC와 WW는 VR이 DS에 해당
+                                // 문자열을 숫자로 변환해야 함
                                 {
-                                    string s = Encoding.ASCII.GetString(valueBytes).Trim('\0', ' ');
+                                    string s = Encoding.ASCII.GetString(valueBytes).Trim('\0', ' '); // null과 공백 제거
                                     if (!string.IsNullOrEmpty(s))
                                     {
-                                        var first = s.Split('\\')[0];
-                                        if (double.TryParse(first, NumberStyles.Float, CultureInfo.InvariantCulture, out double wc))
+                                        var first = s.Split('\\')[0]; // 여러 값 중 첫 번째만 사용
+                                        if (double.TryParse(first, NumberStyles.Float, CultureInfo.InvariantCulture, out double wc)) // 소수점 처리
                                             windowC = wc;
                                     }
                                 }
@@ -124,12 +139,13 @@ namespace wpfEx01
                                 break;
                         }
                         break;
-
                     case 0x7FE0 when element == 0x0010:
                         pixelData = valueBytes;
                         break;
                 }
 
+
+                // DICOM 픽셀 데이터 모두 읽은 후 반복을 종료하기 위한 조건
                 if (height > 0 && width > 0 && pixelData != null) break;
             }
             buffer8 = ConvertTo8Bit(pixelData, width, height);
@@ -155,15 +171,26 @@ namespace wpfEx01
             windowW = 13926;
         }
 
+
+        // 16비트 픽셀 데이터를 8비트로 변환
         private byte[] ConvertTo8Bit(byte[] pixelData, int width, int height)
         {
-            byte[] buffer = new byte[width * height];
+            byte[] buffer = new byte[width * height]; // 출력용 8비트 배열 생성, 크기는 원본과 동일하게 width * height
+
             for (int i = 0; i < buffer.Length; i++)
             {
-                if (i * 2 + 1 < pixelData.Length)
+                if (i * 2 + 1 < pixelData.Length)  // 16비트 데이터는 2바이트씩 저장되어 있으므로 i * 2 와 i * 2 + 1 을 사용
                 {
                     ushort value16 = (ushort)(pixelData[i * 2] | (pixelData[i * 2 + 1] << 8));
+                    // 2바이트를 하나의 16비트 값으로 결합
+                    // pixelData[i * 2] 는 하위 바이트
+                    // pixelData[i * 2 + 1] << 8 은 상위 바이트
+                    // | 연산으로 합쳐 16비트 값 완성
+
+
                     buffer[i] = (byte)(value16 >> 8);
+                    // 상위 8비트만 취해서 8비트 영상으로 변환
+                    // 16비트 데이터를 축소해서 0 ~ 255 범위로 매핑
                 }
             }
             return buffer;
@@ -171,7 +198,18 @@ namespace wpfEx01
         private void SetImage(byte[] buffer, int width, int height, Image imageControl, Image histControl)
         {
             WriteableBitmap wbLocal = new WriteableBitmap(width, height, 96, 96, PixelFormats.Gray8, null);
+            // 폭 / 높이: 영상 크기
+            // DPI: 96
+            // 픽셀 포맷: Gray8 (8비트 그레이스케일)
+            // null: 팔레트 없음
+
+
             wbLocal.WritePixels(new Int32Rect(0, 0, width, height), buffer, width, 0);
+            // 실제 영상 데이터를 WriteableBitmap에 복사
+            // Int32Rect(0, 0, width, height): 영역 지정 (전체 영상)
+            // width: stride (한 줄의 바이트 수)
+            // 0: offset 
+
             imageControl.Source = wbLocal;
 
             WriteableBitmap histBitmap = Draw(buffer);
