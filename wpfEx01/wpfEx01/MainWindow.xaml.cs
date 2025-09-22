@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Windows;
@@ -23,6 +24,9 @@ namespace wpfEx01
 
         double alpha = 1.0;
         int beta = 0;
+
+        double windowW;
+        double windowC;
 
         byte[] iBuffer;
         byte[] oBuffer;
@@ -89,9 +93,42 @@ namespace wpfEx01
 
                 byte[] valueBytes = reader.ReadBytes(vl);
 
-                if (group == 40 && element == 16) height = BitConverter.ToUInt16(valueBytes, 0);
-                else if (group == 40 && element == 17) width = BitConverter.ToUInt16(valueBytes, 0);
-                else if (group == 32736 && element == 16) pixelData = valueBytes;
+                switch (group)
+                {
+                    case 0x0028:
+                        switch (element)
+                        {
+                            case 0x0010: height = BitConverter.ToUInt16(valueBytes, 0); break;
+                            case 0x0011: width = BitConverter.ToUInt16(valueBytes, 0); break;
+                            case 0x1050:
+                                {
+                                    string s = Encoding.ASCII.GetString(valueBytes).Trim('\0', ' ');
+                                    if (!string.IsNullOrEmpty(s))
+                                    {
+                                        var first = s.Split('\\')[0];
+                                        if (double.TryParse(first, NumberStyles.Float, CultureInfo.InvariantCulture, out double wc))
+                                            windowC = wc;
+                                    }
+                                }
+                                break;
+                            case 0x1051:
+                                {
+                                    string s = Encoding.ASCII.GetString(valueBytes).Trim('\0', ' ');
+                                    if (!string.IsNullOrEmpty(s))
+                                    {
+                                        var first = s.Split('\\')[0];
+                                        if (double.TryParse(first, NumberStyles.Float, CultureInfo.InvariantCulture, out double ww))
+                                            windowW = ww;
+                                    }
+                                }
+                                break;
+                        }
+                        break;
+
+                    case 0x7FE0 when element == 0x0010:
+                        pixelData = valueBytes;
+                        break;
+                }
 
                 if (height > 0 && width > 0 && pixelData != null) break;
             }
@@ -157,7 +194,7 @@ namespace wpfEx01
                 // 오버플로우 방지
                 if (contrastOValue > 255) contrastOValue = 255;
                 if (contrastOValue < 0) contrastOValue = 0;
-                
+
                 oBuffer[i] = (byte)contrastOValue;
             }
 
@@ -178,14 +215,14 @@ namespace wpfEx01
         {
             if (buffer8 == null) return;
 
-            if (iBuffer == null) 
+            if (iBuffer == null)
                 iBuffer = (byte[])buffer8.Clone();
 
             oBuffer = new byte[iBuffer.Length];
 
             for (int i = 0; i < iBuffer.Length; i++)
             {
-                double contrastOValue = iBuffer[i] * (1/alpha);
+                double contrastOValue = iBuffer[i] * (1 / alpha);
                 if (contrastOValue > 255) contrastOValue = 255;
                 if (contrastOValue < 0) contrastOValue = 0;
                 oBuffer[i] = (byte)contrastOValue;
@@ -194,10 +231,10 @@ namespace wpfEx01
 
             SetImage(oBuffer, width, height, imgBoxResult, imgBoxResultHistogram);
 
-            alpha = alpha -  0.1;
+            alpha = alpha - 0.1;
             txtBox.Text += $"현재 Contrast 값: {alpha} \n";
 
-            if(alpha < 0)
+            if (alpha < 0)
             {
                 MessageBox.Show("더 이상 감소시킬 수 없습니다.");
                 alpha = 0.1;
@@ -283,7 +320,7 @@ namespace wpfEx01
             beta = beta - 10;
             txtBox.Text += $"현재 Brightness 값: {beta} \n";
 
-            if(beta < 0)
+            if (beta < 0)
             {
                 MessageBox.Show("더 이상 감소시킬 수 없습니다. \n");
                 beta = 0;
@@ -318,31 +355,51 @@ namespace wpfEx01
         #region LUT
         private void btnLut_Click(object sender, RoutedEventArgs e)
         {
-            if (buffer8 == null) return;
+            if (buffer16 == null && buffer8 == null) return;
+
+            ushort[] sourceBuffer16;
+
+            if (buffer16 != null) sourceBuffer16 = buffer16;
+            else
+            {
+                sourceBuffer16 = new ushort[buffer8.Length];
+                for (int i = 0; i < buffer8.Length; i++)
+                    sourceBuffer16[i] = (ushort)(buffer8[i] << 8);
+            }
+
             if (iBuffer == null)
                 iBuffer = (byte[])buffer8.Clone();
 
-            byte[] lutArr = new byte[256];
-            for (int i = 0; i < 256; i++)
+            byte[] resultBuffer = new byte[iBuffer.Length];
+            byte[] lutArr = new byte[65536];
+
+            for (int i = 0; i < 65536; i++)
             {
-                double lutVal = i * alpha + beta;
-                if (lutVal > 255) lutVal = 255;
+                double lutVal;
+                if (i <= windowC - 0.5 - (windowW - 1) / 2.0) lutVal = 0;
+                else if (i > windowC - 0.5 + (windowW - 1) / 2.0) lutVal = 255;
+                else lutVal = ((i - (windowC - 0.5)) / (windowW - 1) + 0.5) * 255.0;
+
+                lutVal = lutVal * alpha + beta;
+
                 if (lutVal < 0) lutVal = 0;
+                if (lutVal > 255) lutVal = 255;
+
                 lutArr[i] = (byte)lutVal;
             }
 
-            byte[] resultBuffer = new byte[iBuffer.Length];
-            for (int i = 0; i < iBuffer.Length; i++)
-                resultBuffer[i] = lutArr[iBuffer[i]];
+            for (int i = 0; i < sourceBuffer16.Length; i++)
+                resultBuffer[i] = lutArr[sourceBuffer16[i]];
 
             WriteableBitmap wbLut = new WriteableBitmap(width, height, 96, 96, PixelFormats.Gray8, null);
             wbLut.WritePixels(new Int32Rect(0, 0, width, height), resultBuffer, width, 0);
             imgBoxResult.Source = wbLut;
 
-            WriteableBitmap histBitmap = Draw(iBuffer, lutArr);
+            WriteableBitmap histBitmap = Draw(resultBuffer, lutArr);
             imgBoxResultHistogram.Source = histBitmap;
 
-            txtBox.Text += $"적용된 alpha: {alpha:F2}, 적용된 beta: {beta} \n";
+            //txtBox.Text += $"적용된 alpha: {alpha:F2}, 적용된 beta: {beta} \n";
+            txtBox.Text += $"WW/WC 기반 LUT 적용: Window Center: {windowC}, Window Width: {windowW}";
         }
         private static void DrawLine(byte[] pixels, int stride, int width, int height, int x1, int y1, int x2, int y2, Color color)
         {
