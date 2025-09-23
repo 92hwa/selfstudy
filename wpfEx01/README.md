@@ -1,12 +1,14 @@
 # wpfEx01
 
+Code-behind 이벤트 처리 방식으로 구현
+
 ### 주요 기능
 
-1. 영상 파일 불러오기
-2. 영상 변환
-3. 영상을 Image 형태로 출력
-4. Histogram 출력
-5. LUT 적용한 영상 및 Histogram 출력
+* 영상 파일 불러오기
+* 영상 변환
+* 영상을 Image 형태로 출력
+* Histogram 출력
+* LUT 적용한 영상 및 Histogram 출력
 
 <br/>
 

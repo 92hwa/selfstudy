@@ -150,7 +150,7 @@ namespace wpfEx01
             }
             buffer8 = ConvertTo8Bit(pixelData, width, height);
         }
-        private void LoadRAW(BinaryReader reader)
+        private void LoadRAW(BinaryReader reader)   
         {
             width = 3072;
             height = 3072;
