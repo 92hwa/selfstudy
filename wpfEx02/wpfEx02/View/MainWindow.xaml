@@ -1,0 +1,28 @@
+﻿<Window x:Class="wpfEx02.View.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:wpfEx02.ViewModel"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="644.177">
+
+    <Window.DataContext>
+        <vm:MainViewModel />
+    </Window.DataContext>
+    
+    <Grid>
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Margin="10,10,0,0">
+            <Button Content="Load" Command="{Binding LoadCommand}" Width="150" Height="30"/>
+            <Button Content="Increase Contrast" Command="{Binding ContrastUpCommand}" Width="150" Height="30"/>
+            <Button Content="Decrease Contrast" Command="{Binding ContrastDownCommand}" Width="150" Height="30"/>
+            <Button Content="Increase Brightness" Command="{Binding BrightUpCommand}" Width="150" Height="30"/>
+            <Button Content="Decrease Brightness" Command="{Binding BrightDownCommand}" Width="150" Height="30"/>
+            <Button Content="LUT" Command="{Binding LUTCommand}" Width="150" Height="30"/>
+            <Button Content="Initialize" Command="{Binding InitCommand}"  Width="150" Height="30"/>
+        </StackPanel>
+        
+        <Image Source="{Binding Image}" HorizontalAlignment="Stretch"  Margin="170,10,10,10" VerticalAlignment="Stretch" />
+
+    </Grid>
+</Window>
