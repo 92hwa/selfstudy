@@ -1,6 +1,0 @@
-D:\workspace\wpfEx02\wpfEx02\obj\x64\Debug\wpfEx02.csproj.AssemblyReference.cache
-D:\workspace\wpfEx02\wpfEx02\obj\x64\Debug\View\MainWindow.g.cs
-D:\workspace\wpfEx02\wpfEx02\obj\x64\Debug\App.g.cs
-D:\workspace\wpfEx02\wpfEx02\obj\x64\Debug\GeneratedInternalTypeHelper.g.cs
-D:\workspace\wpfEx02\wpfEx02\obj\x64\Debug\wpfEx02_MarkupCompile.cache
-D:\workspace\wpfEx02\wpfEx02\obj\x64\Debug\wpfEx02_MarkupCompile.lref
