@@ -10,12 +10,36 @@
     <Window.DataContext>
         <vm:MainViewModel/>
     </Window.DataContext>
-    
+
+
     <Grid>
-        <StackPanel Orientation="Vertical"  HorizontalAlignment="Left" Margin="10">
-            <Button Content="Load" Command="{Binding LoadCommand}" Width="150" Height="30" Margin="0, 0, 0, 20" />
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="160" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Orientation="Vertical"  HorizontalAlignment="Left" Margin="10" Grid.Column="0">
+            <Button Content="Load" Command="{Binding LoadCommand}" Width="150" Height="30" Margin="0, 0, 0, 30" />
+
+            <Button Content="Increase Contrast" Command="{Binding ContrastUpCommand}" Width="150" Height="30" Margin="0, 0, 0, 10" />
+            <Button Content="Decrease Contrast" Command="{Binding ContrastDownCommand}" Width="150" Height="30" Margin="0, 0, 0, 30" />
+
+            <Button Content="Increase Brightness" Command="{Binding BrightUpCommand}" Width="150" Height="30" Margin="0,0,0,10" />
+            <Button Content="Decrease Brightness" Command="{Binding BrightDownCommand}" Width="150" Height="30" Margin="0,0,0,30" />
+
+            <Button Content="LUT" Command="{Binding ApplyLUTCommand}" Width="150" Height="30" Margin="0,0,0,30" />
+
+            <Button Content="Initialize" Command="{Binding InitCommand}" Width="150" Height="30"  />
         </StackPanel>
 
-        <Image Source="{Binding Image}" Margin="170, 10, 10, 10" Stretch="Uniform" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+        <Grid Background="Black" Grid.Column="1">
+            <Image Source="{Binding Image}"  Stretch="Uniform" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"  />
+            <Label Content="{Binding PatientName}" HorizontalAlignment="Left" Margin="118,10,0,0" VerticalAlignment="Top" Foreground="White"/>
+            <Label Content="{Binding Size}" HorizontalAlignment="Left" Margin="118,385,0,0" VerticalAlignment="Top" Foreground="White"/>
+            <Label Content="{Binding WL}" HorizontalAlignment="Left" Margin="359,377,0,0" VerticalAlignment="Top" Width="159" Foreground="White" HorizontalContentAlignment="Right" />
+        </Grid>
+
+
     </Grid>
 </Window>
