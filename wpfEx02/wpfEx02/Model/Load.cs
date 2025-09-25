@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using System.Globalization;
+using wpfEx02.ViewModel;
 
 namespace wpfEx02.Model
 {
@@ -20,7 +21,7 @@ namespace wpfEx02.Model
             return path;
         }
 
-        public byte[] LoadDicom(BinaryReader reader)
+        public byte[] LoadDicom(BinaryReader reader, MainViewModel vm = null)
         {
             byte[] pixelData = null;
 
@@ -48,21 +49,37 @@ namespace wpfEx02.Model
 
                 switch (group)
                 {
+                    case 0x0010 when element == 0x0010:
+                        string pn = Encoding.ASCII.GetString(valueBytes).Trim('\0', ' ');
+                        if (vm != null) vm.PatientName = "PN  " + pn;
+                        break;
+
+                    case 0x0008 when element == 0x0020:
+                        {
+                            string studyDate = Encoding.ASCII.GetString(valueBytes).Trim('\0', ' ');
+                            if (vm != null) vm.StudyDate = $"CR StudyDate{studyDate}";
+                        }break;
                     case 0x0028:
                         switch (element)
                         {
                             case 0x0010: Height = BitConverter.ToUInt16(valueBytes, 0); break;
-                            case 0x0011: Width = BitConverter.ToUInt16(valueBytes, 0); break;
+                            case 0x0011:
+                                {
+                                    Width = BitConverter.ToUInt16(valueBytes, 0);
+                                    vm.WidthHeight = $"{Width} x {Height}";
+                                } break;
                             case 0x1050:
                                 if (double.TryParse(Encoding.ASCII.GetString(valueBytes).Trim('\0', ' ').Split('\\')[0],
                                         NumberStyles.Float, CultureInfo.InvariantCulture, out double wc))
                                     WindowC = wc;
                                 break;
                             case 0x1051:
-                                if (double.TryParse(Encoding.ASCII.GetString(valueBytes).Trim('\0', ' ').Split('\\')[0],
-                                        NumberStyles.Float, CultureInfo.InvariantCulture, out double ww))
-                                    WindowW = ww;
-                                break;
+                                {
+                                    if (double.TryParse(Encoding.ASCII.GetString(valueBytes).Trim('\0', ' ').Split('\\')[0],
+                                       NumberStyles.Float, CultureInfo.InvariantCulture, out double ww))
+                                        WindowW = ww;
+                                    vm.WWWC = $"{WindowW}/{WindowC}";
+                                } break;
                         }
                         break;
 

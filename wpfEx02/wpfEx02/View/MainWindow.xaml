@@ -11,11 +11,9 @@
         <vm:MainViewModel/>
     </Window.DataContext>
 
-
     <Grid>
-
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="160" />
+            <ColumnDefinition Width="170" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
@@ -35,9 +33,10 @@
 
         <Grid Background="Black" Grid.Column="1">
             <Image Source="{Binding Image}"  Stretch="Uniform" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"  />
-            <Label Content="{Binding PatientName}" HorizontalAlignment="Left" Margin="118,10,0,0" VerticalAlignment="Top" Foreground="White"/>
-            <Label Content="{Binding Size}" HorizontalAlignment="Left" Margin="118,385,0,0" VerticalAlignment="Top" Foreground="White"/>
-            <Label Content="{Binding WL}" HorizontalAlignment="Left" Margin="359,377,0,0" VerticalAlignment="Top" Width="159" Foreground="White" HorizontalContentAlignment="Right" />
+            <Label Content="{Binding PatientName}" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Foreground="White"/>
+            <Label Content="{Binding WidthHeight}" HorizontalAlignment="Left" Margin="10,377,0,0" VerticalAlignment="Top" Foreground="White"/>
+            <Label Content="{Binding WWWC}" HorizontalAlignment="Left" Margin="455,377,0,0" VerticalAlignment="Top" Width="159" Foreground="White" HorizontalContentAlignment="Right" />
+            <Label Content="{Binding StudyDate}" HorizontalAlignment="Left" Margin="455,10,0,0" VerticalAlignment="Top" Width="159" Foreground="White" HorizontalContentAlignment="Right" />
         </Grid>
 
 

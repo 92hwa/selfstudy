@@ -22,10 +22,38 @@ namespace wpfEx02.ViewModel
         [ObservableProperty]
         private BitmapSource image;
 
+        private string patientName;
+        public string PatientName
+        {
+            get => patientName;
+            set => SetProperty(ref patientName, value);
+        }
+
         public BitmapSource Image 
         { 
             get => image; 
             set => SetProperty(ref image, value); 
+        }
+
+        private string wwwc;
+        public string WWWC
+        {
+            get => wwwc;
+            set => SetProperty(ref wwwc, value);
+        }
+
+        private string widthHeight;
+        public string WidthHeight
+        {
+            get => widthHeight;
+            set => SetProperty(ref widthHeight, value);
+        }
+
+        private string studyDate;
+        public string StudyDate
+        {
+            get => studyDate;
+            set => SetProperty(ref studyDate, value);
         }
 
         public ICommand LoadCommand { get; }
@@ -39,7 +67,7 @@ namespace wpfEx02.ViewModel
         public ICommand ApplyLUTCommand { get; }
 
         public ICommand InitCommand { get; }
-
+      
         public MainViewModel()
         {
             LoadCommand = new RelayCommand(OnLoad);
@@ -74,7 +102,7 @@ namespace wpfEx02.ViewModel
                 switch (selectedFileExt)
                 {
                     case ".dcm":
-                        _loader.LoadDicom(reader);
+                        _loader.LoadDicom(reader, this);
                         SetImage(_loader.Buffer8, _loader.Width, _loader.Height);
                         break;
                     case ".raw":
